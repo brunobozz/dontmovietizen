@@ -1,0 +1,158 @@
+/* Import modern, premium font */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
+
+:root {
+    --bg-gradient: radial-gradient(circle at top right, #1a1e36, #090a10);
+    --card-bg: rgba(255, 255, 255, 0.05);
+    --card-border: rgba(255, 255, 255, 0.1);
+    --focus-bg: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+    --focus-glow: 0 10px 30px rgba(79, 172, 254, 0.5);
+    --text-primary: #ffffff;
+    --text-secondary: #8e9bb4;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+body {
+    width: 1920px;
+    height: 1080px;
+    background: var(--bg-gradient);
+    color: var(--text-primary);
+    font-family: 'Outfit', sans-serif;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.app-container {
+    width: 100%;
+    height: 100%;
+    padding: 90px 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.app-header {
+    animation: fadeInDown 0.8s ease-out;
+}
+
+.app-title {
+    font-size: 54px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    background: linear-gradient(to right, #ffffff, #8e9bb4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 10px;
+}
+
+.app-subtitle {
+    font-size: 22px;
+    color: var(--text-secondary);
+    font-weight: 300;
+}
+
+.content-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 40px;
+    margin: 40px 0;
+}
+
+.card {
+    background: var(--card-bg);
+    border: 2px solid var(--card-border);
+    border-radius: 24px;
+    padding: 40px 30px;
+    height: 380px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    backdrop-filter: blur(10px);
+}
+
+.card-icon {
+    font-size: 72px;
+    margin-bottom: auto;
+    transition: transform 0.4s ease;
+}
+
+.card-title {
+    font-size: 32px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.card-desc {
+    font-size: 18px;
+    color: var(--text-secondary);
+    font-weight: 300;
+    line-height: 1.4;
+}
+
+/* TV Remote Focus State */
+.card.focused {
+    background: var(--focus-bg);
+    border-color: transparent;
+    box-shadow: var(--focus-glow);
+    transform: scale(1.08) translateY(-10px);
+}
+
+.card.focused .card-icon {
+    transform: scale(1.15) rotate(-5deg);
+}
+
+.card.focused .card-title {
+    color: #000000;
+}
+
+.card.focused .card-desc {
+    color: rgba(0, 0, 0, 0.7);
+}
+
+.app-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 30px;
+}
+
+.status-bar {
+    display: flex;
+    gap: 40px;
+    font-size: 18px;
+    color: var(--text-secondary);
+}
+
+.key-badge {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #ffffff;
+    margin-left: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Animations */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

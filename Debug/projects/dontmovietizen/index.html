@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dont Movie</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="app-container">
+      <header class="app-header">
+        <h1 class="app-title">Tizen Smart TV Hub</h1>
+        <p class="app-subtitle">Navegue com as setas do controle remoto</p>
+      </header>
+
+      <main class="content-grid">
+        <div class="card focusable" data-index="0">
+          <div class="card-icon">🎬</div>
+          <div class="card-title">Filmes</div>
+          <div class="card-desc">Assista aos últimos lançamentos</div>
+        </div>
+        <div class="card focusable" data-index="1">
+          <div class="card-icon">📺</div>
+          <div class="card-title">Séries</div>
+          <div class="card-desc">Maratone suas séries favoritas</div>
+        </div>
+        <div class="card focusable" data-index="2">
+          <div class="card-icon">🎮</div>
+          <div class="card-title">Jogos</div>
+          <div class="card-desc">Divirta-se com jogos na TV</div>
+        </div>
+        <div class="card focusable" data-index="3">
+          <div class="card-icon">⚙️</div>
+          <div class="card-title">Configurações</div>
+          <div class="card-desc">Ajuste as preferências do app</div>
+        </div>
+      </main>
+
+      <footer class="app-footer">
+        <div class="status-bar">
+          <span
+            >Pressione <span class="key-badge">ENTER</span> para
+            selecionar</span
+          >
+          <span
+            >Pressione <span class="key-badge">RETURN/BACK</span> para
+            sair</span
+          >
+        </div>
+      </footer>
+    </div>
+
+    <!-- Tizen Web API Helper (required for remote keys on physical TV) -->
+    <script src="$WEBAPIS/webapis/webapis.js"></script>
+    <script src="js/main.js"></script>
+  </body>
+</html>
