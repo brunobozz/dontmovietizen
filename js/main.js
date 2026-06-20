@@ -220,11 +220,6 @@ function startTime() {
   m = checkTime(m);
   s = checkTime(s);
 
-  const el = document.getElementById("divbutton1");
-  if (el) {
-    el.innerHTML = `Current time: ${h}:${m}:${s}`;
-  }
-
   setTimeout(startTime, 1000); // corrigido (10ms era absurdo)
 }
 

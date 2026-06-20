@@ -7,128 +7,122 @@
     <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
-    <div class="app-container">
+    <div class="app-container flex flex-col justify-between">
       <header class="app-header">
-        <h1 class="app-title">Tizen Smart TV Hub</h1>
-        <p class="app-subtitle">Navegue com as setas do controle remoto</p>
+        <h1 class="app-title text-3xl font-extrabold mb-2">Tizen Smart TV Hub</h1>
+        <p class="app-subtitle text-sm text-slate-400 font-light">Navegue com as setas do controle remoto</p>
       </header>
 
-      <main class="content-grid">
-        <div class="card focusable">
-          <div class="card-icon">🎬</div>
-          <div class="card-title">Filmes</div>
+      <main class="grid grid-cols-6 gap-10 my-10">
+        <div class="card focusable bg-glass border-glass rounded-2xl p-8 flex flex-col justify-end transition-all ease-out duration-300 focused:float focused:bg-gradient-sky focused:shadow-sky">
+          <div class="card-icon text-4xl mb-auto transition-all duration-300">🎬</div>
+          <div class="card-title text-xl font-semibold mb-2">Filmes</div>
         </div>
-        <div class="card focusable">
-          <div class="card-icon">📺</div>
-          <div class="card-title">Séries</div>
+        <div class="card focusable bg-glass border-glass rounded-2xl p-8 flex flex-col justify-end transition-all ease-out duration-300 focused:float focused:bg-gradient-violet focused:shadow-violet">
+          <div class="card-icon text-4xl mb-auto transition-all duration-300">📺</div>
+          <div class="card-title text-xl font-semibold mb-2">Séries</div>
         </div>
-        <div class="card focusable">
-          <div class="card-icon">🎮</div>
-          <div class="card-title">Jogos</div>
+        <div class="card focusable bg-glass border-glass rounded-2xl p-8 flex flex-col justify-end transition-all ease-out duration-300 focused:float focused:bg-sky-500 focused:shadow-sky">
+          <div class="card-icon text-4xl mb-auto transition-all duration-300">🎮</div>
+          <div class="card-title text-xl font-semibold mb-2">Jogos</div>
         </div>
-        <div class="card focusable">
-          <div class="card-icon">⚙️</div>
-          <div class="card-title">Config</div>
-        </div>
-
-        <div class="card focusable">
-          <div class="card-icon">🔥</div>
-          <div class="card-title">Trending</div>
-        </div>
-        <div class="card focusable">
-          <div class="card-icon">⭐</div>
-          <div class="card-title">Favoritos</div>
-        </div>
-        <div class="card focusable">
-          <div class="card-icon">🎵</div>
-          <div class="card-title">Música</div>
-        </div>
-        <div class="card focusable">
-          <div class="card-icon">📡</div>
-          <div class="card-title">Ao Vivo</div>
+        <div class="card focusable bg-glass border-glass rounded-2xl p-8 flex flex-col justify-end transition-all ease-out duration-300 focused:float focused:bg-slate-800 focused:shadow-white">
+          <div class="card-icon text-4xl mb-auto transition-all duration-300">⚙️</div>
+          <div class="card-title text-xl font-semibold mb-2">Config</div>
         </div>
 
-        <div class="card focusable">
-          <div class="card-icon">🧠</div>
-          <div class="card-title">AI</div>
+        <div class="card focusable bg-glass border-glass rounded-2xl p-8 flex flex-col justify-end transition-all ease-out duration-300 focused:float focused:bg-gradient-violet focused:shadow-violet">
+          <div class="card-icon text-4xl mb-auto transition-all duration-300">🔥</div>
+          <div class="card-title text-xl font-semibold mb-2">Trending</div>
         </div>
-        <div class="card focusable">
-          <div class="card-icon">📂</div>
-          <div class="card-title">Arquivos</div>
+        <div class="card focusable bg-glass border-glass rounded-2xl p-8 flex flex-col justify-end transition-all ease-out duration-300 focused:float focused:bg-sky-500 focused:shadow-sky">
+          <div class="card-icon text-4xl mb-auto transition-all duration-300">⭐</div>
+          <div class="card-title text-xl font-semibold mb-2">Favoritos</div>
         </div>
-        <div class="card focusable">
-          <div class="card-icon">🌐</div>
-          <div class="card-title">Internet</div>
+        <div class="card focusable bg-glass border-glass rounded-2xl p-8 flex flex-col justify-end transition-all ease-out duration-300 focused:float focused:bg-violet-600 focused:shadow-violet">
+          <div class="card-icon text-4xl mb-auto transition-all duration-300">🎵</div>
+          <div class="card-title text-xl font-semibold mb-2">Música</div>
         </div>
-        <div class="card focusable">
-          <div class="card-icon">👤</div>
-          <div class="card-title">Perfil</div>
+        <div class="card focusable bg-glass border-glass rounded-2xl p-8 flex flex-col justify-end transition-all ease-out duration-300 focused:float focused:bg-slate-800 focused:shadow-white">
+          <div class="card-icon text-4xl mb-auto transition-all duration-300">📡</div>
+          <div class="card-title text-xl font-semibold mb-2">Ao Vivo</div>
+        </div>
+
+        <div class="card focusable bg-glass border-glass rounded-2xl p-8 flex flex-col justify-end transition-all ease-out duration-300 focused:float focused:bg-gradient-sky focused:shadow-sky">
+          <div class="card-icon text-4xl mb-auto transition-all duration-300">🧠</div>
+          <div class="card-title text-xl font-semibold mb-2">AI</div>
+        </div>
+        <div class="card focusable bg-glass border-glass rounded-2xl p-8 flex flex-col justify-end transition-all ease-out duration-300 focused:float focused:bg-slate-800 focused:shadow-white">
+          <div class="card-icon text-4xl mb-auto transition-all duration-300">📂</div>
+          <div class="card-title text-xl font-semibold mb-2">Arquivos</div>
+        </div>
+        <div class="card focusable bg-glass border-glass rounded-2xl p-8 flex flex-col justify-end transition-all ease-out duration-300 focused:float focused:bg-sky-500 focused:shadow-sky">
+          <div class="card-icon text-4xl mb-auto transition-all duration-300">🌐</div>
+          <div class="card-title text-xl font-semibold mb-2">Internet</div>
+        </div>
+        <div class="card focusable bg-glass border-glass rounded-2xl p-8 flex flex-col justify-end transition-all ease-out duration-300 focused:float focused:bg-violet-600 focused:shadow-violet">
+          <div class="card-icon text-4xl mb-auto transition-all duration-300">👤</div>
+          <div class="card-title text-xl font-semibold mb-2">Perfil</div>
         </div>
       </main>
 
-      <main class="content-grid">
-        <div class="card focusable">
-          <div class="card-icon">🎬</div>
-          <div class="card-title">Filmes</div>
+      <main class="grid grid-cols-6 gap-10 my-10">
+        <div class="card focusable bg-glass border-glass rounded-2xl p-8 flex flex-col justify-end transition-all ease-out duration-300 focused:float focused:bg-gradient-sky focused:shadow-sky">
+          <div class="card-icon text-4xl mb-auto transition-all duration-300">🎬</div>
+          <div class="card-title text-xl font-semibold mb-2">Filmes</div>
         </div>
-        <div class="card focusable">
-          <div class="card-icon">📺</div>
-          <div class="card-title">Séries</div>
+        <div class="card focusable bg-glass border-glass rounded-2xl p-8 flex flex-col justify-end transition-all ease-out duration-300 focused:float focused:bg-gradient-violet focused:shadow-violet">
+          <div class="card-icon text-4xl mb-auto transition-all duration-300">📺</div>
+          <div class="card-title text-xl font-semibold mb-2">Séries</div>
         </div>
-        <div class="card focusable">
-          <div class="card-icon">🎮</div>
-          <div class="card-title">Jogos</div>
+        <div class="card focusable bg-glass border-glass rounded-2xl p-8 flex flex-col justify-end transition-all ease-out duration-300 focused:float focused:bg-sky-500 focused:shadow-sky">
+          <div class="card-icon text-4xl mb-auto transition-all duration-300">🎮</div>
+          <div class="card-title text-xl font-semibold mb-2">Jogos</div>
         </div>
-        <div class="card focusable">
-          <div class="card-icon">⚙️</div>
-          <div class="card-title">Config</div>
-        </div>
-
-        <div class="card focusable">
-          <div class="card-icon">🔥</div>
-          <div class="card-title">Trending</div>
-        </div>
-        <div class="card focusable">
-          <div class="card-icon">⭐</div>
-          <div class="card-title">Favoritos</div>
-        </div>
-        <div class="card focusable">
-          <div class="card-icon">🎵</div>
-          <div class="card-title">Música</div>
-        </div>
-        <div class="card focusable">
-          <div class="card-icon">📡</div>
-          <div class="card-title">Ao Vivo</div>
+        <div class="card focusable bg-glass border-glass rounded-2xl p-8 flex flex-col justify-end transition-all ease-out duration-300 focused:float focused:bg-slate-800 focused:shadow-white">
+          <div class="card-icon text-4xl mb-auto transition-all duration-300">⚙️</div>
+          <div class="card-title text-xl font-semibold mb-2">Config</div>
         </div>
 
-        <div class="card focusable">
-          <div class="card-icon">🧠</div>
-          <div class="card-title">AI</div>
+        <div class="card focusable bg-glass border-glass rounded-2xl p-8 flex flex-col justify-end transition-all ease-out duration-300 focused:float focused:bg-gradient-violet focused:shadow-violet">
+          <div class="card-icon text-4xl mb-auto transition-all duration-300">🔥</div>
+          <div class="card-title text-xl font-semibold mb-2">Trending</div>
         </div>
-        <div class="card focusable">
-          <div class="card-icon">📂</div>
-          <div class="card-title">Arquivos</div>
+        <div class="card focusable bg-glass border-glass rounded-2xl p-8 flex flex-col justify-end transition-all ease-out duration-300 focused:float focused:bg-sky-500 focused:shadow-sky">
+          <div class="card-icon text-4xl mb-auto transition-all duration-300">⭐</div>
+          <div class="card-title text-xl font-semibold mb-2">Favoritos</div>
         </div>
-        <div class="card focusable">
-          <div class="card-icon">🌐</div>
-          <div class="card-title">Internet</div>
+        <div class="card focusable bg-glass border-glass rounded-2xl p-8 flex flex-col justify-end transition-all ease-out duration-300 focused:float focused:bg-violet-600 focused:shadow-violet">
+          <div class="card-icon text-4xl mb-auto transition-all duration-300">🎵</div>
+          <div class="card-title text-xl font-semibold mb-2">Música</div>
         </div>
-        <div class="card focusable">
-          <div class="card-icon">👤</div>
-          <div class="card-title">Perfil</div>
+        <div class="card focusable bg-glass border-glass rounded-2xl p-8 flex flex-col justify-end transition-all ease-out duration-300 focused:float focused:bg-slate-800 focused:shadow-white">
+          <div class="card-icon text-4xl mb-auto transition-all duration-300">📡</div>
+          <div class="card-title text-xl font-semibold mb-2">Ao Vivo</div>
+        </div>
+
+        <div class="card focusable bg-glass border-glass rounded-2xl p-8 flex flex-col justify-end transition-all ease-out duration-300 focused:float focused:bg-gradient-sky focused:shadow-sky">
+          <div class="card-icon text-4xl mb-auto transition-all duration-300">🧠</div>
+          <div class="card-title text-xl font-semibold mb-2">AI</div>
+        </div>
+        <div class="card focusable bg-glass border-glass rounded-2xl p-8 flex flex-col justify-end transition-all ease-out duration-300 focused:float focused:bg-slate-800 focused:shadow-white">
+          <div class="card-icon text-4xl mb-auto transition-all duration-300">📂</div>
+          <div class="card-title text-xl font-semibold mb-2">Arquivos</div>
+        </div>
+        <div class="card focusable bg-glass border-glass rounded-2xl p-8 flex flex-col justify-end transition-all ease-out duration-300 focused:float focused:bg-sky-500 focused:shadow-sky">
+          <div class="card-icon text-4xl mb-auto transition-all duration-300">🌐</div>
+          <div class="card-title text-xl font-semibold mb-2">Internet</div>
+        </div>
+        <div class="card focusable bg-glass border-glass rounded-2xl p-8 flex flex-col justify-end transition-all ease-out duration-300 focused:float focused:bg-violet-600 focused:shadow-violet">
+          <div class="card-icon text-4xl mb-auto transition-all duration-300">👤</div>
+          <div class="card-title text-xl font-semibold mb-2">Perfil</div>
         </div>
       </main>
 
-      <footer class="app-footer">
-        <div class="status-bar">
-          <span
-            >Pressione <span class="key-badge">ENTER</span> para
-            selecionar</span
-          >
-          <span
-            >Pressione <span class="key-badge">RETURN/BACK</span> para
-            sair</span
-          >
+      <footer class="app-footer w-full flex justify-between items-center py-6">
+        <div class="status-bar flex gap-10 text-sm text-slate-400">
+          <span>Pressione <span class="key-badge">ENTER</span> para selecionar</span>
+          <span>Pressione <span class="key-badge">RETURN/BACK</span> para sair</span>
         </div>
       </footer>
     </div>
