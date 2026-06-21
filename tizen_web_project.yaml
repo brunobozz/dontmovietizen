@@ -27,11 +27,9 @@ trust_anchor: []
 
 # list of files in web project (.html,.css etc) and resources
 files:
-  - css/style.css
+  - dist/index.html
   - icon.png
-  - images/tizen_32.png
-  - index.html
-  - js/main.js
+  - images/*
 
 # list of files to exclude based on the matched patterns
 excludes:
