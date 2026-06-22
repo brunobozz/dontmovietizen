@@ -30,6 +30,3 @@
     <SidebarItem hash={item.hash} icon={item.icon} {currentHash} />
   {/each}
 </aside>
-
-<style lang="scss">
-</style>
