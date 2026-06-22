@@ -194,6 +194,54 @@ export function handleNavigation(keyCode, event = null) {
 
   if (!direction) return;
 
+  const isActiveSidebar = activeEl.classList.contains('sidebar-item');
+
+  // If navigating LEFT from sidebar, do nothing (leftmost edge)
+  if (direction === 'LEFT' && isActiveSidebar) {
+    return;
+  }
+
+  // Determine candidate filters
+  let allowSidebar = false;
+  let allowContent = false;
+
+  if (direction === 'UP' || direction === 'DOWN') {
+    // Prevent crossing boundary on UP/DOWN
+    if (isActiveSidebar) {
+      allowSidebar = true;
+    } else {
+      allowContent = true;
+    }
+  } else if (direction === 'RIGHT') {
+    // RIGHT always targets content (from sidebar or within content)
+    allowContent = true;
+  } else if (direction === 'LEFT') {
+    // LEFT from content: check if there is any other content to the left of activeEl
+    const activeRect = activeEl.getBoundingClientRect();
+    let hasContentOnLeft = false;
+
+    for (let i = 0; i < elements.length; i++) {
+      const candidate = elements[i];
+      if (candidate === activeEl) continue;
+      
+      const isCandidateSidebar = candidate.classList.contains('sidebar-item');
+      if (isCandidateSidebar) continue;
+
+      const candidateRect = candidate.getBoundingClientRect();
+      // Candidate is to the left of active element
+      if (candidateRect.right <= activeRect.left + 5) {
+        hasContentOnLeft = true;
+        break;
+      }
+    }
+
+    if (hasContentOnLeft) {
+      allowContent = true;
+    } else {
+      allowSidebar = true;
+    }
+  }
+
   const activeRect = activeEl.getBoundingClientRect();
   let bestCandidate = null;
   let minDistance = Infinity;
@@ -201,6 +249,10 @@ export function handleNavigation(keyCode, event = null) {
   for (let i = 0; i < elements.length; i++) {
     const candidate = elements[i];
     if (candidate === activeEl) continue;
+
+    const isCandidateSidebar = candidate.classList.contains('sidebar-item');
+    if (allowSidebar && !isCandidateSidebar) continue;
+    if (allowContent && isCandidateSidebar) continue;
 
     const candidateRect = candidate.getBoundingClientRect();
 

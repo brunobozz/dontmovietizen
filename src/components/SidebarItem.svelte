@@ -13,7 +13,7 @@
   bind:this={element}
   use:focusable
   data-hash={hash}
-  class="w-[70px] h-[70px] cursor-pointer relative border-2 border-transparent text-slate-400 flex items-center justify-center rounded-2xl transition-all duration-300
+  class="sidebar-item w-[70px] h-[70px] cursor-pointer relative border-2 border-transparent text-slate-400 flex items-center justify-center rounded-2xl transition-all duration-300
     {focused ? 'bg-sky-500 border-sky-400 shadow-[0_0_20px_rgba(14,165,233,0.45)] scale-110 text-white' : ''}
     {currentHash === hash ? 'text-sky-400 active-indicator' : ''}"
   on:click={() => window.location.hash = hash}
