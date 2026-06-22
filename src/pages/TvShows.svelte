@@ -1,6 +1,14 @@
 <script>
   import Card from '../components/Card.svelte';
-  import { focusIndex } from '../services/navigation.js';
+
+  const tvshows = [
+    { title: "Breaking Bad", icon: "🧪", focusClass: "focused:bg-gradient-sky focused:shadow-sky" },
+    { title: "Stranger Things", icon: "🐙", focusClass: "focused:bg-gradient-violet focused:shadow-violet" },
+    { title: "Game of Thrones", icon: "👑", focusClass: "focused:bg-amber-500 focused:shadow-amber" },
+    { title: "Chernobyl", icon: "☢️", focusClass: "focused:bg-slate-700 focused:shadow-white" },
+    { title: "Rick and Morty", icon: "🪐", focusClass: "focused:bg-sky-500 focused:shadow-sky" },
+    { title: "The Boys", icon: "🩸", focusClass: "focused:bg-slate-800 focused:shadow-white" },
+  ];
 </script>
 
 <div class="app-container flex flex-col justify-between">
@@ -10,18 +18,18 @@
   </header>
 
   <main class="grid grid-cols-6 gap-10 my-10">
-    <Card
-      title="Voltar ao Menu"
-      icon="⬅️"
-      focusClass="focused:bg-slate-800 focused:shadow-white"
-      focused={$focusIndex === 0}
-      on:click={() => window.location.hash = 'dashboard'}
-    />
+    {#each tvshows as show}
+      <Card
+        title={show.title}
+        icon={show.icon}
+        focusClass={show.focusClass}
+      />
+    {/each}
   </main>
 
   <footer class="app-footer w-full flex justify-between items-center py-6">
     <div class="status-bar flex gap-10 text-sm text-slate-400">
-      <span>Pressione <span class="key-badge">ENTER</span> para voltar</span>
+      <span>Pressione <span class="key-badge">ENTER</span> para selecionar</span>
       <span>Pressione <span class="key-badge">RETURN/BACK</span> para voltar</span>
     </div>
   </footer>

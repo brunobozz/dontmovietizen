@@ -1,5 +1,6 @@
 <script>
   import { onMount } from 'svelte';
+  import Sidebar from './components/Sidebar.svelte';
   import Dashboard from './pages/Dashboard.svelte';
   import Movies from './pages/Movies.svelte';
   import TvShows from './pages/TvShows.svelte';
@@ -36,5 +37,10 @@
 <!-- Captura as teclas direcionais de forma global no app -->
 <svelte:window on:keydown={e => handleNavigation(e.keyCode, e)} />
 
-<!-- Renderiza dinamicamente a tela ativa -->
-<svelte:component this={routes[currentRoute]} />
+<div class="flex flex-row w-full h-full">
+  <Sidebar />
+  <div class="flex-grow h-full overflow-hidden">
+    <!-- Renderiza dinamicamente a tela ativa -->
+    <svelte:component this={routes[currentRoute]} />
+  </div>
+</div>

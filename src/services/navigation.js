@@ -5,7 +5,7 @@ export const focusIndex = writable(0);
 export const focusableElements = writable([]);
 
 let elements = [];
-let cols = 6;
+let contentCols = 6;
 
 // Register physical Tizen remote keys (like Back)
 export function registerTizenKeys() {
@@ -49,34 +49,36 @@ export function updateScroll() {
       inline: "center",
     });
 
-    // Edge Scroll fine-tuning calculations
-    const rect = activeEl.getBoundingClientRect();
-    const windowHeight = window.innerHeight;
-    const elementCenter = rect.top + rect.height / 2;
-    const screenCenter = windowHeight / 2;
-    const offset = elementCenter - screenCenter;
+    // Edge Scroll fine-tuning calculations (only for content area, sidebar does not scroll)
+    if (!activeEl.classList.contains('sidebar-item')) {
+      const rect = activeEl.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+      const elementCenter = rect.top + rect.height / 2;
+      const screenCenter = windowHeight / 2;
+      const offset = elementCenter - screenCenter;
 
-    window.scrollBy({
-      top: offset,
-      behavior: "smooth",
-    });
+      window.scrollBy({
+        top: offset,
+        behavior: "smooth",
+      });
+    }
   }, 10);
 }
 
-// Calculate the columns of the active grid dynamically
+// Calculate the columns of the content grid dynamically (excluding sidebar items)
 function calculateGrid() {
-  if (elements.length === 0) {
-    cols = 1;
+  const contentEls = elements.filter(el => !el.classList.contains('sidebar-item'));
+  if (contentEls.length === 0) {
+    contentCols = 1;
     return;
   }
 
-  // Get top offset of the first element
-  const firstRowTop = elements[0].getBoundingClientRect().top;
+  // Get top offset of the first content element
+  const firstRowTop = contentEls[0].getBoundingClientRect().top;
   let detectedCols = 0;
 
-  for (let i = 0; i < elements.length; i++) {
-    const top = elements[i].getBoundingClientRect().top;
-    // If the top coordinate is within 5px, it's on the same row
+  for (let i = 0; i < contentEls.length; i++) {
+    const top = contentEls[i].getBoundingClientRect().top;
     if (Math.abs(top - firstRowTop) < 5) {
       detectedCols++;
     } else {
@@ -84,7 +86,7 @@ function calculateGrid() {
     }
   }
 
-  cols = detectedCols || 1;
+  contentCols = detectedCols || 1;
 }
 
 // Svelte custom directive (action) to auto-register focusable elements
@@ -130,49 +132,97 @@ export function focusable(node) {
   };
 }
 
-// Global Keydown Router for Remote Control Navigation
+// Global Keydown Router for Remote Control Navigation (supports Sidebar <-> Content Panels)
 export function handleNavigation(keyCode, event = null) {
   if (elements.length === 0) return;
 
-  // Calculate grid columns dynamically on keypress to ensure accurate layout info
   calculateGrid();
 
   const currentIndex = get(focusIndex);
+  const activeEl = elements[currentIndex];
+
+  if (!activeEl) return;
+
+  const sidebarEls = elements.filter(el => el.classList.contains('sidebar-item'));
+  const sidebarCount = sidebarEls.length;
+  const contentEls = elements.filter(el => !el.classList.contains('sidebar-item'));
+
+  const isSidebar = activeEl.classList.contains('sidebar-item');
 
   switch (keyCode) {
     case 37: // LEFT
-      if (currentIndex % cols !== 0) {
-        focusIndex.set(currentIndex - 1);
-        updateScroll();
+      if (isSidebar) {
+        // Do nothing, leftmost edge of screen
+        return;
+      } else {
+        const contentIndex = currentIndex - sidebarCount;
+        // If at leftmost column of grid, transition back to Sidebar
+        if (contentIndex % contentCols === 0) {
+          // Focus the sidebar item corresponding to the active page
+          let targetSidebarIndex = 0;
+          const hash = window.location.hash;
+          if (hash === '#movies') targetSidebarIndex = 1;
+          else if (hash === '#tvshows') targetSidebarIndex = 2;
+          
+          focusIndex.set(targetSidebarIndex);
+          updateScroll();
+        } else {
+          focusIndex.set(currentIndex - 1);
+          updateScroll();
+        }
       }
       break;
 
     case 39: // RIGHT
-      if (currentIndex % cols !== cols - 1 && currentIndex < elements.length - 1) {
-        focusIndex.set(currentIndex + 1);
-        updateScroll();
+      if (isSidebar) {
+        // Transition from Sidebar into the Content Panel
+        if (contentEls.length > 0) {
+          focusIndex.set(sidebarCount); // Focus first content element
+          updateScroll();
+        }
+      } else {
+        const contentIndex = currentIndex - sidebarCount;
+        if (contentIndex % contentCols !== contentCols - 1 && currentIndex < elements.length - 1) {
+          focusIndex.set(currentIndex + 1);
+          updateScroll();
+        }
       }
       break;
 
     case 38: // UP
-      if (currentIndex - cols >= 0) {
-        focusIndex.set(currentIndex - cols);
-        updateScroll();
+      if (isSidebar) {
+        // Vertical navigation inside Sidebar
+        if (currentIndex > 0) {
+          focusIndex.set(currentIndex - 1);
+          updateScroll();
+        }
+      } else {
+        const contentIndex = currentIndex - sidebarCount;
+        if (contentIndex - contentCols >= 0) {
+          focusIndex.set(currentIndex - contentCols);
+          updateScroll();
+        }
       }
       break;
 
     case 40: // DOWN
-      if (currentIndex + cols < elements.length) {
-        focusIndex.set(currentIndex + cols);
-        updateScroll();
+      if (isSidebar) {
+        // Vertical navigation inside Sidebar
+        if (currentIndex < sidebarCount - 1) {
+          focusIndex.set(currentIndex + 1);
+          updateScroll();
+        }
+      } else {
+        const contentIndex = currentIndex - sidebarCount;
+        if (contentIndex + contentCols < contentEls.length) {
+          focusIndex.set(currentIndex + contentCols);
+          updateScroll();
+        }
       }
       break;
 
     case 13: // ENTER (Select)
-      const activeEl = elements[currentIndex];
-      if (activeEl) {
-        activeEl.click();
-      }
+      activeEl.click();
       break;
 
     case 10009: // BACK (Tizen)

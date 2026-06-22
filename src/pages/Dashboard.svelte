@@ -1,19 +1,19 @@
 <script>
   import Card from "../components/Card.svelte";
-  import { focusIndex } from "../services/navigation.js";
+  import { mdiMovie, mdiTelevision } from "@mdi/js";
 
   const items = [
     {
       title: "Movies",
-      icon: "🎬",
+      icon: mdiMovie,
       focusClass: "focused:bg-gradient-sky focused:shadow-sky",
-      page: "movies"
+      page: "movies",
     },
     {
       title: "Tv Shows",
-      icon: "📺",
+      icon: mdiTelevision,
       focusClass: "focused:bg-gradient-violet focused:shadow-violet",
-      page: "tvshows"
+      page: "tvshows",
     },
   ];
 </script>
@@ -26,14 +26,13 @@
     </p>
   </header>
 
-  <main class="grid grid-cols-6 gap-10 my-10">
-    {#each items as item, index}
+  <main class="grid grid-cols-4 gap-10 my-10">
+    {#each items as item}
       <Card
         title={item.title}
         icon={item.icon}
         focusClass={item.focusClass}
-        focused={$focusIndex === index}
-        on:click={() => window.location.hash = item.page}
+        on:click={() => (window.location.hash = item.page)}
       />
     {/each}
   </main>
