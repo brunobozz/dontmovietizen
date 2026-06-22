@@ -157,39 +157,39 @@
 
 <style lang="scss">
   .btn-primary {
-    background-color: var(--tw-sky-500);
+    background-color: #0ea5e9;
     color: #ffffff;
     border: 2px solid transparent;
 
     &:global(.focused) {
-      background-color: var(--tw-sky-600);
-      border-color: var(--tw-sky-400);
+      background-color: #0284c7;
+      border-color: #38bdf8;
       box-shadow: 0 0 15px rgba(14, 165, 233, 0.4);
       transform: scale(1.05);
     }
   }
 
   .btn-success {
-    background-color: var(--tw-emerald-500);
+    background-color: #10b981;
     color: #ffffff;
     border: 2px solid transparent;
 
     &:global(.focused) {
-      background-color: var(--tw-emerald-600);
-      border-color: var(--tw-emerald-400);
+      background-color: #059669;
+      border-color: #34d399;
       box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
       transform: scale(1.05);
     }
   }
 
   .btn-cancel {
-    background-color: var(--tw-slate-800);
-    color: var(--tw-slate-300);
+    background-color: #1e293b;
+    color: #cbd5e1;
     border: 2px solid transparent;
 
     &:global(.focused) {
-      background-color: var(--tw-slate-700);
-      border-color: var(--tw-slate-500);
+      background-color: #334155;
+      border-color: #64748b;
       color: #ffffff;
       transform: scale(1.05);
     }
@@ -200,8 +200,8 @@
     border: 2px solid transparent;
 
     &:global(.focused) {
-      background-color: var(--tw-slate-700);
-      border-color: var(--tw-slate-500);
+      background-color: #334155;
+      border-color: #64748b;
       transform: scale(1.1);
       box-shadow: 0 0 15px rgba(255, 255, 255, 0.15);
     }
@@ -212,8 +212,8 @@
     transition: all 0.3s ease;
 
     &:global(.focused) {
-      border-color: var(--tw-sky-400);
-      background: var(--tw-slate-800) !important;
+      border-color: #38bdf8;
+      background: #1e293b !important;
       box-shadow: 0 0 15px rgba(14, 165, 233, 0.3);
     }
   }

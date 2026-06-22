@@ -1,19 +1,17 @@
+@import "tailwindcss";
+
 /* Import modern, premium font */
 @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap");
-@import url("tailwind-tv.scss");
-
-html,
-body {
-  height: 100%;
-  margin: 0;
-  width: 100%;
-}
 
 body {
   font-family: "Outfit", sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  background: radial-gradient(circle at top right, #131722, #07080d);
+  color: #f1f5f9;
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
 }
 
 .app-container {
@@ -31,6 +29,17 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   letter-spacing: -1px;
+}
+
+/* Glassmorphism custom components */
+.bg-glass {
+  background-color: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.border-glass {
+  border: 2px solid rgba(255, 255, 255, 0.08);
 }
 
 /* Card base structure */
@@ -56,6 +65,76 @@ body {
   color: #ffffff;
   margin-left: 5px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* ======================================================= */
+/* TV REMOTE CONTROL FOCUS UTILITIES                       */
+/* ======================================================= */
+
+.focusable {
+  outline: none;
+  cursor: pointer;
+  will-change: transform, box-shadow, background-color, border-color;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Combined Scale and Translate for card float (default premium effect) */
+.focusable.focused.focused\:float {
+  transform: scale(1.08) translateY(-10px);
+}
+
+.focusable.focused {
+  &.focused\:scale-102 { transform: scale(1.02); }
+  &.focused\:scale-105 { transform: scale(1.05); }
+  &.focused\:scale-108 { transform: scale(1.08); }
+  &.focused\:scale-110 { transform: scale(1.10); }
+
+  &.focused\:-translate-y-1 { transform: translateY(-4px); }
+  &.focused\:-translate-y-2 { transform: translateY(-8px); }
+  &.focused\:-translate-y-3 { transform: translateY(-12px); }
+
+  /* Focused Backgrounds */
+  &.focused\:bg-white { background-color: #ffffff; }
+  &.focused\:bg-slate-800 { background-color: #1e293b; }
+  &.focused\:bg-slate-700 { background-color: #334155; }
+  &.focused\:bg-sky-500 { background-color: #0ea5e9; }
+  &.focused\:bg-indigo-600 { background-color: #4f46e5; }
+  &.focused\:bg-violet-600 { background-color: #7c3aed; }
+  &.focused\:bg-rose-500 { background-color: #f43f5e; }
+  
+  &.focused\:bg-gradient-sky {
+    background: linear-gradient(135deg, #38bdf8 0%, #6366f1 100%);
+  }
+  &.focused\:bg-gradient-violet {
+    background: linear-gradient(135deg, #8b5cf6 0%, #fb7185 100%);
+  }
+
+  /* Focused Borders */
+  &.focused\:border-white { border-color: #ffffff !important; }
+  &.focused\:border-sky-400 { border-color: #38bdf8 !important; }
+  &.focused\:border-indigo-400 { border-color: #818cf8 !important; }
+  &.focused\:border-violet-400 { border-color: #a78bfa !important; }
+  &.focused\:border-transparent { border-color: transparent !important; }
+
+  /* Focused Glow Shadows */
+  &.focused\:shadow-sky {
+    box-shadow: 0 12px 30px rgba(14, 165, 233, 0.4);
+  }
+  &.focused\:shadow-indigo {
+    box-shadow: 0 12px 30px rgba(99, 102, 241, 0.45);
+  }
+  &.focused\:shadow-violet {
+    box-shadow: 0 12px 30px rgba(139, 92, 246, 0.45);
+  }
+  &.focused\:shadow-white {
+    box-shadow: 0 12px 30px rgba(255, 255, 255, 0.2);
+  }
+  &.focused\:shadow-amber {
+    box-shadow: 0 12px 30px rgba(245, 158, 11, 0.4);
+  }
+  &.focused\:shadow-rose {
+    box-shadow: 0 12px 30px rgba(244, 63, 94, 0.4);
+  }
 }
 
 /* Animations */

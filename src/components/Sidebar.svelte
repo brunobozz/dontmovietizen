@@ -24,7 +24,7 @@
 </script>
 
 <aside
-  class="sidebar flex flex-col items-center py-12 bg-glass h-full w-[120px] justify-center gap-8 flex-shrink-0"
+  class="flex flex-col items-center py-12 bg-glass z-10 h-full w-[120px] justify-center gap-8 shrink-0 will-change-transform"
 >
   {#each menuItems as item}
     <SidebarItem hash={item.hash} icon={item.icon} {currentHash} />
@@ -32,12 +32,4 @@
 </aside>
 
 <style lang="scss">
-  .sidebar {
-    width: 120px;
-    height: 100%;
-    will-change: transform;
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    z-index: 10;
-  }
 </style>
