@@ -54,23 +54,23 @@
     {:else}
       {#each lists as list, index}
         <div
-          class="flex justify-between items-center p-4 bg-glass rounded-xl"
+          use:focusable
+          class="list-item-row focusable flex justify-between items-center p-4 bg-glass border-2 border-transparent rounded-xl"
+          on:click={() => confirm("Deseja realmente excluir esta lista?") && removeList(index)}
         >
           <div class="flex flex-col gap-1">
             <span class="text-base font-semibold text-white break-all">{list.url}</span>
           </div>
           <div class="flex gap-4">
-            <button
-              use:focusable
-              class="btn-danger-action focusable flex items-center justify-center w-12 h-12 rounded-xl bg-slate-800 transition-all duration-300"
-              on:click={() => removeList(index)}
+            <div
+              class="flex items-center justify-center w-12 h-12 rounded-xl bg-slate-800/60 text-rose-400"
             >
               <svg
                 viewBox="0 0 24 24"
-                class="w-6 h-6 fill-current text-rose-400"
+                class="w-6 h-6 fill-current"
                 ><path d={mdiTrashCan} /></svg
               >
-            </button>
+            </div>
           </div>
         </div>
       {/each}
@@ -171,14 +171,11 @@
     }
   }
 
-  .btn-danger-action {
+  .list-item-row {
     border: 2px solid transparent;
 
     &:global(.focused) {
-      background-color: #334155;
-      border-color: #64748b;
-      transform: scale(1.1);
-      box-shadow: 0 0 15px rgba(255, 255, 255, 0.15);
+      background-color: rgba(255, 255, 255, 0.08) !important;
     }
   }
 

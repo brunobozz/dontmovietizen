@@ -84,8 +84,25 @@ export function focusable(node) {
     registerTizenKeys();
   }
 
+  // Automatically toggle 'focused' class on the DOM node
+  function updateFocusClass() {
+    const els = get(focusableElements);
+    const index = get(focusIndex);
+    if (els[index] === node) {
+      node.classList.add('focused');
+    } else {
+      node.classList.remove('focused');
+    }
+  }
+
+  const unsubscribeIndex = focusIndex.subscribe(updateFocusClass);
+  const unsubscribeElements = focusableElements.subscribe(updateFocusClass);
+
   return {
     destroy() {
+      unsubscribeIndex();
+      unsubscribeElements();
+
       // Remove node from tracking array
       elements = elements.filter(el => el !== node);
       focusableElements.set(elements);
