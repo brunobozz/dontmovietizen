@@ -4,13 +4,15 @@
   import Dashboard from './pages/Dashboard.svelte';
   import Movies from './pages/Movies.svelte';
   import TvShows from './pages/TvShows.svelte';
+  import Settings from './pages/Settings.svelte';
   import { handleNavigation } from './services/navigation.js';
 
   // Mapeamento de rotas/telas do app
   const routes = {
     'dashboard': Dashboard,
     'movies': Movies,
-    'tvshows': TvShows
+    'tvshows': TvShows,
+    'settings': Settings
   };
 
   let currentRoute = 'dashboard';
