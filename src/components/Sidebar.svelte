@@ -1,11 +1,12 @@
 <script>
   import { onMount } from "svelte";
   import SidebarItem from "./SidebarItem.svelte";
-  import { mdiHome, mdiMovie, mdiTelevision, mdiCog } from "@mdi/js";
+  import { mdiMagnify, mdiHome, mdiMovie, mdiTelevision, mdiCog } from "@mdi/js";
 
   let currentHash = "dashboard";
 
   const menuItems = [
+    { hash: "search", icon: mdiMagnify },
     { hash: "dashboard", icon: mdiHome },
     { hash: "movies", icon: mdiMovie },
     { hash: "tvshows", icon: mdiTelevision },

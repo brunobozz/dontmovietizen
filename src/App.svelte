@@ -4,11 +4,13 @@
   import Dashboard from "./pages/Dashboard.svelte";
   import Movies from "./pages/Movies.svelte";
   import TvShows from "./pages/TvShows.svelte";
+  import Search from "./pages/Search.svelte";
   import Settings from "./pages/Settings.svelte";
   import { handleNavigation } from "./services/navigation.js";
 
   // Mapeamento de rotas/telas do app
   const routes = {
+    search: Search,
     dashboard: Dashboard,
     movies: Movies,
     tvshows: TvShows,
