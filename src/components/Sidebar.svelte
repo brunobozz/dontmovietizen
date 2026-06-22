@@ -1,35 +1,33 @@
 <script>
-  import { onMount } from 'svelte';
-  import SidebarItem from './SidebarItem.svelte';
-  import { mdiHome, mdiMovie, mdiTelevision, mdiCog } from '@mdi/js';
+  import { onMount } from "svelte";
+  import SidebarItem from "./SidebarItem.svelte";
+  import { mdiHome, mdiMovie, mdiTelevision, mdiCog } from "@mdi/js";
 
-  let currentHash = 'dashboard';
+  let currentHash = "dashboard";
 
   const menuItems = [
-    { hash: 'dashboard', icon: mdiHome },
-    { hash: 'movies', icon: mdiMovie },
-    { hash: 'tvshows', icon: mdiTelevision },
-    { hash: 'settings', icon: mdiCog }
+    { hash: "dashboard", icon: mdiHome },
+    { hash: "movies", icon: mdiMovie },
+    { hash: "tvshows", icon: mdiTelevision },
+    { hash: "settings", icon: mdiCog },
   ];
 
   function handleHash() {
-    currentHash = window.location.hash.slice(1) || 'dashboard';
+    currentHash = window.location.hash.slice(1) || "dashboard";
   }
 
   onMount(() => {
-    window.addEventListener('hashchange', handleHash);
+    window.addEventListener("hashchange", handleHash);
     handleHash();
-    return () => window.removeEventListener('hashchange', handleHash);
+    return () => window.removeEventListener("hashchange", handleHash);
   });
 </script>
 
-<aside class="sidebar flex flex-col items-center py-12 bg-glass border-r border-glass h-full w-[120px] justify-center gap-8 flex-shrink-0">
+<aside
+  class="sidebar flex flex-col items-center py-12 bg-glass h-full w-[120px] justify-center gap-8 flex-shrink-0"
+>
   {#each menuItems as item}
-    <SidebarItem 
-      hash={item.hash} 
-      icon={item.icon} 
-      {currentHash} 
-    />
+    <SidebarItem hash={item.hash} icon={item.icon} {currentHash} />
   {/each}
 </aside>
 

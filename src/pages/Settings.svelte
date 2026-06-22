@@ -1,46 +1,220 @@
 <script>
-  import Card from '../components/Card.svelte';
-  import { exitApp } from '../services/navigation.js';
-  import { mdiInformation, mdiPower, mdiRefresh } from '@mdi/js';
+  import { onMount } from "svelte";
+  import Header from "../components/Header.svelte";
+  import { focusable } from "../services/navigation.js";
+  import { mdiPlus, mdiTrashCan, mdiPlay, mdiCog } from "@mdi/js";
 
-  function handleReset() {
-    alert("Configurações limpas com sucesso!");
+  let lists = [];
+  let showForm = false;
+  let newUrl = "";
+
+  // Load lists on mount from localStorage
+  onMount(() => {
+    const saved = localStorage.getItem("m3u_lists");
+    if (saved) {
+      try {
+        lists = JSON.parse(saved);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  });
+
+  function saveLists() {
+    localStorage.setItem("m3u_lists", JSON.stringify(lists));
+  }
+
+  function addList() {
+    if (!newUrl.trim()) {
+      alert("Por favor, insira uma URL válida.");
+      return;
+    }
+
+    let name = "Lista #" + (lists.length + 1);
+    try {
+      const urlObj = new URL(newUrl);
+      name = urlObj.hostname;
+    } catch (e) {}
+
+    lists = [...lists, { name, url: newUrl }];
+    saveLists();
+    newUrl = "";
+    showForm = false;
+  }
+
+  function removeList(index) {
+    lists = lists.filter((_, idx) => idx !== index);
+    saveLists();
   }
 </script>
 
-<div class="app-container flex flex-col justify-between">
-  <header class="app-header">
-    <h1 class="app-title text-3xl font-extrabold mb-2">Settings / Configurações</h1>
-    <p class="app-subtitle text-sm text-slate-400 font-light">Gerencie os ajustes do Don't Movie e do dispositivo</p>
-  </header>
+<div class="app-container overflow-y-auto flex flex-col gap-8">
+  <Header title="Settings" icon={mdiCog} />
 
-  <main class="grid grid-cols-4 gap-10 my-10">
-    <Card
-      title="Informações do Sistema"
-      icon={mdiInformation}
-      focusClass="focused:bg-gradient-sky focused:shadow-sky"
-      on:click={() => alert("Don't Movie Tizen Edition v1.0.0\nRunning on Tizen OS")}
-    />
+  <!-- M3U Lists Manager Section -->
+  <section class="m3u-section flex flex-col gap-6">
+    <h2 class="text-xl font-bold text-white">M3U Lists</h2>
 
-    <Card
-      title="Limpar Cache"
-      icon={mdiRefresh}
-      focusClass="focused:bg-gradient-violet focused:shadow-violet"
-      on:click={handleReset}
-    />
-
-    <Card
-      title="Fechar Aplicativo"
-      icon={mdiPower}
-      focusClass="focused:bg-rose-500 focused:shadow-rose"
-      on:click={exitApp}
-    />
-  </main>
-
-  <footer class="app-footer w-full flex justify-between items-center py-6">
-    <div class="status-bar flex gap-10 text-sm text-slate-400">
-      <span>Pressione <span class="key-badge">ENTER</span> para selecionar</span>
-      <span>Pressione <span class="key-badge">RETURN/BACK</span> para voltar</span>
+    <!-- Lists Content -->
+    <div class="flex flex-col gap-4">
+      {#if lists.length === 0}
+        <div class="text-slate-500 text-sm font-light text-center py-6">
+          Nenhuma lista M3U cadastrada.
+        </div>
+      {:else}
+        {#each lists as list, index}
+          <div
+            class="list-item flex justify-between items-center p-4 bg-slate-950 border border-glass rounded-xl"
+          >
+            <div class="flex flex-col gap-1">
+              <span class="text-base font-semibold text-white">{list.name}</span
+              >
+              <span class="text-xs text-slate-500 font-light">{list.url}</span>
+            </div>
+            <div class="flex gap-4">
+              <button
+                use:focusable
+                class="btn-action focusable flex items-center justify-center w-12 h-12 rounded-xl bg-slate-800 transition-all duration-300"
+                on:click={() => alert("Abrindo lista: " + list.name)}
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  class="w-6 h-6 fill-current text-sky-400"
+                  ><path d={mdiPlay} /></svg
+                >
+              </button>
+              <button
+                use:focusable
+                class="btn-danger-action focusable flex items-center justify-center w-12 h-12 rounded-xl bg-slate-800 transition-all duration-300"
+                on:click={() => removeList(index)}
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  class="w-6 h-6 fill-current text-rose-400"
+                  ><path d={mdiTrashCan} /></svg
+                >
+              </button>
+            </div>
+          </div>
+        {/each}
+      {/if}
     </div>
-  </footer>
+
+    <!-- Add List Form -->
+    {#if showForm}
+      <div class="form-container flex flex-col gap-4">
+        <div class="flex flex-col gap-2">
+          <label for="list-url" class="text-sm font-semibold text-slate-300"
+            >URL da Lista (M3U)</label
+          >
+          <input
+            id="list-url"
+            use:focusable
+            type="text"
+            placeholder="http://exemplo.com/lista.m3u"
+            bind:value={newUrl}
+            class="input-field focusable px-6 py-4 bg-slate-800 border-glass rounded-xl text-base text-white w-full outline-none"
+          />
+        </div>
+        <div class="flex gap-4 mt-2">
+          <button
+            use:focusable
+            class="btn-success focusable px-6 py-4 rounded-xl text-sm font-semibold transition-all duration-300"
+            on:click={addList}
+          >
+            Salvar
+          </button>
+          <button
+            use:focusable
+            class="btn-cancel focusable px-6 py-4 rounded-xl text-sm font-semibold transition-all duration-300"
+            on:click={() => {
+              showForm = false;
+              newUrl = "";
+            }}
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    {/if}
+
+    <div class="flex justify-end mt-4">
+      {#if !showForm}
+        <button
+          use:focusable
+          class="btn-primary focusable flex items-center justify-center gap-2 px-6 py-4 rounded-xl text-sm font-semibold transition-all duration-300"
+          on:click={() => (showForm = true)}
+        >
+          <svg viewBox="0 0 24 24" class="w-6 h-6 fill-current"
+            ><path d={mdiPlus} /></svg
+          >
+          <span class="text-nowrap">Adicionar Lista</span>
+        </button>
+      {/if}
+    </div>
+  </section>
 </div>
+
+<style lang="scss">
+  .btn-primary {
+    background-color: var(--tw-sky-500);
+    color: #ffffff;
+    border: 2px solid transparent;
+
+    &:global(.focused) {
+      background-color: var(--tw-sky-600);
+      border-color: var(--tw-sky-400);
+      box-shadow: 0 0 15px rgba(14, 165, 233, 0.4);
+      transform: scale(1.05);
+    }
+  }
+
+  .btn-success {
+    background-color: var(--tw-emerald-500);
+    color: #ffffff;
+    border: 2px solid transparent;
+
+    &:global(.focused) {
+      background-color: var(--tw-emerald-600);
+      border-color: var(--tw-emerald-400);
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+      transform: scale(1.05);
+    }
+  }
+
+  .btn-cancel {
+    background-color: var(--tw-slate-800);
+    color: var(--tw-slate-300);
+    border: 2px solid transparent;
+
+    &:global(.focused) {
+      background-color: var(--tw-slate-700);
+      border-color: var(--tw-slate-500);
+      color: #ffffff;
+      transform: scale(1.05);
+    }
+  }
+
+  .btn-action,
+  .btn-danger-action {
+    border: 2px solid transparent;
+
+    &:global(.focused) {
+      background-color: var(--tw-slate-700);
+      border-color: var(--tw-slate-500);
+      transform: scale(1.1);
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.15);
+    }
+  }
+
+  .input-field {
+    border: 2px solid var(--glass-border);
+    transition: all 0.3s ease;
+
+    &:global(.focused) {
+      border-color: var(--tw-sky-400);
+      background: var(--tw-slate-800) !important;
+      box-shadow: 0 0 15px rgba(14, 165, 233, 0.3);
+    }
+  }
+</style>
