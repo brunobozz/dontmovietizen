@@ -20,6 +20,8 @@
       value += " ";
     } else if (key === "backspace") {
       value = value.slice(0, -1);
+    } else if (key === "clear") {
+      value = "";
     } else {
       value += key;
     }
@@ -44,21 +46,30 @@
     </span>
   </div>
 
-  <!-- Top Row: Space and Backspace -->
+  <!-- Top Row: Space, Clear and Backspace -->
   <div class="grid grid-cols-6 gap-2 w-full">
     <!-- Space Key -->
     <button
       use:focusable
-      class="key-btn col-span-3 flex items-center justify-center py-4 rounded-xl bg-slate-800/40 text-slate-300 text-base font-bold border-2 border-transparent transition-all duration-200"
+      class="key-btn col-span-2 flex items-center justify-center py-4 rounded-xl bg-slate-800/40 text-slate-300 text-base font-bold border-2 border-transparent transition-all duration-200"
       on:click={() => handleKey("space")}
     >
       <svg viewBox="0 0 24 24" class="w-8 h-8 fill-current"><path d="M18 9v4H6V9H4v6h16V9z"/></svg>
     </button>
 
+    <!-- Clear Key -->
+    <button
+      use:focusable
+      class="key-btn col-span-2 flex items-center justify-center py-4 rounded-xl bg-slate-800/40 text-slate-300 text-base font-bold border-2 border-transparent transition-all duration-200"
+      on:click={() => handleKey("clear")}
+    >
+      <svg viewBox="0 0 24 24" class="w-8 h-8 fill-current"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+    </button>
+
     <!-- Backspace Key -->
     <button
       use:focusable
-      class="key-btn col-span-3 flex items-center justify-center py-4 rounded-xl bg-slate-800/40 text-slate-300 text-base font-bold border-2 border-transparent transition-all duration-200"
+      class="key-btn col-span-2 flex items-center justify-center py-4 rounded-xl bg-slate-800/40 text-slate-300 text-base font-bold border-2 border-transparent transition-all duration-200"
       on:click={() => handleKey("backspace")}
     >
       <svg viewBox="0 0 24 24" class="w-8 h-8 fill-current"><path d="M22 3H7c-.69 0-1.23.35-1.59.88L0 12l5.41 8.11c.36.53.9.89 1.59.89h15c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-3 12.59L17.59 17 14 13.41 10.41 17 9 15.59 12.59 12 9 8.41 10.41 7 14 10.59 17.59 7 19 8.41 15.41 12 19 15.59z"/></svg>
