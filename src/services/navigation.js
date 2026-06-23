@@ -122,6 +122,37 @@ export function focusable(node) {
   };
 }
 
+// Helper to get untransformed bounding rect (specifically removing scale factor)
+function getUnscaledClientRect(el) {
+  const rect = el.getBoundingClientRect();
+  try {
+    const style = window.getComputedStyle(el);
+    const matrix = style.transform;
+    if (matrix && matrix !== 'none') {
+      const values = matrix.split('(')[1].split(')')[0].split(',');
+      const scaleX = parseFloat(values[0]);
+      const scaleY = parseFloat(values[3]);
+      if (!isNaN(scaleX) && !isNaN(scaleY) && scaleX > 0 && scaleY > 0) {
+        const normalWidth = rect.width / scaleX;
+        const normalHeight = rect.height / scaleY;
+        const dx = (rect.width - normalWidth) / 2;
+        const dy = (rect.height - normalHeight) / 2;
+        return {
+          left: rect.left + dx,
+          right: rect.right - dx,
+          top: rect.top + dy,
+          bottom: rect.bottom - dy,
+          width: normalWidth,
+          height: normalHeight
+        };
+      }
+    }
+  } catch (e) {
+    console.warn("Failed to get unscaled client rect:", e);
+  }
+  return rect;
+}
+
 // Calculate spatial distance between two rectangles based on direction
 function getSpatialDistance(rectA, rectB, direction) {
   const centerA = {
@@ -217,7 +248,7 @@ export function handleNavigation(keyCode, event = null) {
     allowContent = true;
   } else if (direction === 'LEFT') {
     // LEFT from content: check if there is any other content to the left of activeEl
-    const activeRect = activeEl.getBoundingClientRect();
+    const activeRect = getUnscaledClientRect(activeEl);
     let hasContentOnLeft = false;
 
     for (let i = 0; i < elements.length; i++) {
@@ -227,7 +258,7 @@ export function handleNavigation(keyCode, event = null) {
       const isCandidateSidebar = candidate.classList.contains('sidebar-item');
       if (isCandidateSidebar) continue;
 
-      const candidateRect = candidate.getBoundingClientRect();
+      const candidateRect = getUnscaledClientRect(candidate);
       // Candidate is to the left of active element
       if (candidateRect.right <= activeRect.left + 5) {
         hasContentOnLeft = true;
@@ -242,7 +273,7 @@ export function handleNavigation(keyCode, event = null) {
     }
   }
 
-  const activeRect = activeEl.getBoundingClientRect();
+  const activeRect = getUnscaledClientRect(activeEl);
   let bestCandidate = null;
   let minDistance = Infinity;
 
@@ -254,7 +285,7 @@ export function handleNavigation(keyCode, event = null) {
     if (allowSidebar && !isCandidateSidebar) continue;
     if (allowContent && isCandidateSidebar) continue;
 
-    const candidateRect = candidate.getBoundingClientRect();
+    const candidateRect = getUnscaledClientRect(candidate);
 
     // Check if candidate lies in the general direction of movement
     let isInDirection = false;
