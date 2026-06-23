@@ -185,3 +185,19 @@ export function getItemsByCategory(type, category, limit = 50, offset = 0) {
     });
   });
 }
+
+/**
+ * Returns all playlist items in the database for in-memory caching and fast search.
+ */
+export function getAllItems() {
+  return initDb().then((db) => {
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction("playlist_items", "readonly");
+      const store = transaction.objectStore("playlist_items");
+      const request = store.getAll();
+
+      request.onerror = (e) => reject(e.target.error);
+      request.onsuccess = () => resolve(request.result || []);
+    });
+  });
+}
