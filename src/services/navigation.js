@@ -322,3 +322,11 @@ export function handleNavigation(keyCode, event = null) {
     }
   }
 }
+
+export function focusElementByDataAttribute(name, val) {
+  const idx = elements.findIndex(el => el.getAttribute(name) === val);
+  if (idx !== -1) {
+    focusIndex.set(idx);
+    updateScroll();
+  }
+}

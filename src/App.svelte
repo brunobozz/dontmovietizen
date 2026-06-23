@@ -6,7 +6,7 @@
   import TvShows from "./pages/TvShows.svelte";
   import Search from "./pages/Search.svelte";
   import Settings from "./pages/Settings.svelte";
-  import { handleNavigation } from "./services/navigation.js";
+  import { handleNavigation, focusElementByDataAttribute } from "./services/navigation.js";
 
   // Mapeamento de rotas/telas do app
   const routes = {
@@ -29,8 +29,16 @@
   }
 
   onMount(() => {
+    // Força iniciar na rota home (dashboard)
+    window.location.hash = "dashboard";
+
     window.addEventListener("hashchange", handleHashChange);
     handleHashChange(); // Executa na inicialização do app
+
+    // Define o foco inicial no botão Home da sidebar
+    setTimeout(() => {
+      focusElementByDataAttribute("data-hash", "dashboard");
+    }, 50);
 
     return () => {
       window.removeEventListener("hashchange", handleHashChange);
