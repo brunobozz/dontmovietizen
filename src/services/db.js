@@ -2,6 +2,7 @@ const DB_NAME = "dontmovietizen_db";
 const DB_VERSION = 1;
 
 let dbInstance = null;
+let cachedItems = null;
 
 export function initDb() {
   if (dbInstance) return Promise.resolve(dbInstance);
@@ -45,6 +46,7 @@ export function initDb() {
  * Saves a chunk of playlist items and categories in a single transaction.
  */
 export function saveChunk(items, categories) {
+  cachedItems = null; // Invalidate cache on new imports
   return initDb().then((db) => {
     return new Promise((resolve, reject) => {
       const transaction = db.transaction(["playlist_items", "categories"], "readwrite");
@@ -78,6 +80,7 @@ export function saveChunk(items, categories) {
  * Deletes all playlist items and categories associated with a list URL.
  */
 export function deleteListItems(listUrl) {
+  cachedItems = null; // Invalidate cache on deletion
   return initDb().then((db) => {
     return new Promise((resolve, reject) => {
       const transaction = db.transaction(["playlist_items", "categories"], "readwrite");
@@ -190,6 +193,10 @@ export function getItemsByCategory(type, category, limit = 50, offset = 0) {
  * Returns all playlist items in the database for in-memory caching and fast search.
  */
 export function getAllItems() {
+  if (cachedItems) {
+    return Promise.resolve(cachedItems);
+  }
+
   return initDb().then((db) => {
     return new Promise((resolve, reject) => {
       const transaction = db.transaction("playlist_items", "readonly");
@@ -197,7 +204,10 @@ export function getAllItems() {
       const request = store.getAll();
 
       request.onerror = (e) => reject(e.target.error);
-      request.onsuccess = () => resolve(request.result || []);
+      request.onsuccess = () => {
+        cachedItems = request.result || [];
+        resolve(cachedItems);
+      };
     });
   });
 }
