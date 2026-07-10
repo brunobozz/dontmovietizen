@@ -1,0 +1,10 @@
+# Tizen Build Folders
+Debug/
+Release/
+node_modules/
+dist/
+.buildResult/
+.package/
+
+# Packages
+*.wgt
