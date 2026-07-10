@@ -49,9 +49,9 @@
   }
 </script>
 
-<div class="shelf-container flex flex-col text-left w-full select-none">
+<div class="shelf-container select-none">
   <!-- Title / Header of the Shelf -->
-  <div class="shelf-header flex justify-between items-center">
+  <div class="shelf-header">
     <h3 class="text-base font-bold text-white tracking-wide uppercase">
       {title}
     </h3>
@@ -60,7 +60,7 @@
 
   <!-- Horizontal Scroll List -->
   <div
-    class="flex overflow-x-auto py-4 scroll-container w-full"
+    class="scroll-container"
     on:scroll={handleScroll}
     on:sn-focused={handleItemFocused}
   >
@@ -94,6 +94,9 @@
   .shelf-container {
     width: 100%;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
   }
 
   .shelf-header {
@@ -101,10 +104,19 @@
     padding-right: 40px;
     box-sizing: border-box;
     margin-bottom: -10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 
   .scroll-container {
     position: relative;
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    width: 100%;
+    padding-top: 16px;
+    padding-bottom: 16px;
     padding-left: 40px;
     padding-right: 40px;
     box-sizing: border-box;

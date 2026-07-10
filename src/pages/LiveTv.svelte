@@ -5,7 +5,6 @@
   import { mdiTelevision } from "@mdi/js";
   import { onMount } from "svelte";
   import { readFile, fileExists } from "../services/storage.js";
-
   import { saveFocus, restoreFocus } from "../services/navigation.js";
 
   export let params = {};
@@ -15,6 +14,10 @@
 
   let showPlayer = false;
   let selectedChannel = null;
+
+  // Lazy loading shelves - start with 5 rows
+  let visibleShelvesCount = 5;
+  $: visibleCategories = categories.slice(0, visibleShelvesCount);
 
   onMount(async () => {
     try {
@@ -56,28 +59,41 @@
       restoreFocus();
     }, 50);
   }
+
+  function handleShelfFocused(event) {
+    const shelfEl = event.target.closest("[data-shelf-index]");
+    if (!shelfEl) return;
+
+    const idx = parseInt(shelfEl.getAttribute("data-shelf-index"), 10);
+    // If we focus the second-to-last or last shelf, append 2 more categories
+    if (idx >= visibleShelvesCount - 2 && visibleShelvesCount < categories.length) {
+      visibleShelvesCount = Math.min(visibleShelvesCount + 2, categories.length);
+    }
+  }
 </script>
 
-<div class="app-container w-full h-full flex flex-col select-none overflow-y-auto">
+<div class="app-container select-none">
   <div class="header-wrapper">
     <Header title="Canais de TV" icon={mdiTelevision} />
   </div>
 
   {#if isLoading}
-    <div class="flex-grow flex items-center justify-center py-12">
-      <span class="text-slate-400 animate-pulse text-base font-semibold">Carregando canais...</span>
+    <div class="loader-wrapper">
+      <span class="loader-text">Carregando canais...</span>
     </div>
   {:else if categories.length === 0}
-    <div class="flex-grow flex flex-col items-center justify-center text-center py-12 px-10">
-      <h3 class="text-xl font-bold text-white mb-2">Nenhum canal encontrado</h3>
-      <p class="text-sm text-slate-500 font-light max-w-sm">
+    <div class="empty-wrapper">
+      <h3 class="empty-title">Nenhum canal encontrado</h3>
+      <p class="empty-desc">
         Sincronize uma lista M3U nas Configurações para carregar os canais de TV ao vivo.
       </p>
     </div>
   {:else}
-    <div class="flex-grow mt-6 flex flex-col w-full">
-      {#each categories as cat (cat.name)}
-        <Shelf title={cat.name} items={cat.items} on:selectItem={handleSelectItem} />
+    <div class="shelves-list" on:sn-focused={handleShelfFocused}>
+      {#each visibleCategories as cat, index (cat.name)}
+        <div data-shelf-index={index}>
+          <Shelf title={cat.name} items={cat.items} on:selectItem={handleSelectItem} />
+        </div>
       {/each}
     </div>
   {/if}
@@ -95,6 +111,10 @@
     padding-left: 0;
     padding-right: 0;
     width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
 
     &::-webkit-scrollbar {
       width: 6px;
@@ -117,5 +137,57 @@
     padding-right: 40px;
     width: 100%;
     box-sizing: border-box;
+  }
+
+  .shelves-list {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-top: 24px;
+    box-sizing: border-box;
+  }
+
+  .loader-wrapper {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 0;
+  }
+
+  .loader-text {
+    color: #94a3b8;
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .empty-wrapper {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 48px 40px;
+  }
+
+  .empty-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 8px;
+  }
+
+  .empty-desc {
+    font-size: 14px;
+    color: #64748b;
+    font-weight: 300;
+    max-width: 320px;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .5; }
   }
 </style>
