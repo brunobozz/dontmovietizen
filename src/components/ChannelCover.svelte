@@ -22,7 +22,9 @@
 >
   <!-- Background logo or Fallback -->
   {#if item.logo && !imageError}
-    <div class="logo-wrapper absolute inset-0 flex items-center justify-center p-4 bg-slate-950/40">
+    <div
+      class="logo-wrapper absolute inset-0 flex items-center justify-center p-2 bg-slate-950/40"
+    >
       <img
         src={item.logo}
         alt={item.name}
@@ -32,8 +34,13 @@
     </div>
   {:else}
     <!-- Fallback layout -->
-    <div class="absolute inset-0 flex flex-col items-center justify-center p-3 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900">
-      <svg viewBox="0 0 24 24" class="w-12 h-12 fill-current text-slate-500 mb-2">
+    <div
+      class="absolute inset-0 flex flex-col items-center justify-center p-3 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900"
+    >
+      <svg
+        viewBox="0 0 24 24"
+        class="w-12 h-12 fill-current text-slate-500 mb-2"
+      >
         <path d={mdiTelevision} />
       </svg>
       <span class="text-[9px] text-slate-400 uppercase tracking-wider block">
@@ -44,7 +51,8 @@
 
   <!-- Channel Name Overlay (Top-Left Gradient) -->
   <div class="text-gradient-overlay flex flex-col text-left">
-    <span class="text-xs font-bold text-white truncate w-full">{item.name}</span>
+    <span class="text-xs font-bold text-white truncate w-full">{item.name}</span
+    >
   </div>
 </div>
 
@@ -57,7 +65,12 @@
     width: 100%;
     padding: 12px;
     box-sizing: border-box;
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.4) 60%, rgba(0, 0, 0, 0) 100%);
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.85) 0%,
+      rgba(0, 0, 0, 0.4) 60%,
+      rgba(0, 0, 0, 0) 100%
+    );
     z-index: 2;
   }
 

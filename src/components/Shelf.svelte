@@ -49,7 +49,7 @@
   }
 </script>
 
-<div class="shelf-container flex flex-col mb-8 text-left w-full select-none">
+<div class="shelf-container flex flex-col text-left w-full select-none">
   <!-- Title / Header of the Shelf -->
   <div class="shelf-header flex justify-between items-center">
     <h3 class="text-base font-bold text-white tracking-wide uppercase">
@@ -100,6 +100,7 @@
     padding-left: 40px;
     padding-right: 40px;
     box-sizing: border-box;
+    margin-bottom: -10px;
   }
 
   .scroll-container {
