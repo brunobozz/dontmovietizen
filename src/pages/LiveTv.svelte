@@ -32,8 +32,7 @@
             items,
             count: items.length
           };
-        })
-        .sort((a, b) => b.count - a.count); // Sort categories by size
+        });
       }
     } catch (err) {
       console.error("Failed to load live categories for Shelves:", err);
