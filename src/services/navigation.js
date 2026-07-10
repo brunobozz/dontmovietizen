@@ -111,6 +111,8 @@ export function focusable(node) {
     const index = get(focusIndex);
     if (els[index] === node) {
       node.classList.add('focused');
+      // Dispatch custom bubbled event for focus updates
+      node.dispatchEvent(new CustomEvent('sn-focused', { bubbles: true, composed: true }));
       // If it is an input/textarea, trigger native browser focus to show TV virtual keyboard
       if (node.tagName === "INPUT" || node.tagName === "TEXTAREA") {
         node.focus();
@@ -239,6 +241,33 @@ function getSpatialDistance(rectA, rectB, direction) {
   return dPrimary * 2.5 + dSecondary;
 }
 
+// Find the item inside a shelf that is currently aligned to the left of the screen (at scroll position)
+function getFirstVisibleItem(shelfContainer) {
+  const scrollContainer = shelfContainer.querySelector(".scroll-container");
+  if (!scrollContainer) return null;
+
+  const items = Array.from(scrollContainer.querySelectorAll(".focusable"));
+  if (items.length === 0) return null;
+
+  let bestItem = items[0];
+  let minDiff = Infinity;
+  // Account for the 40px left padding offset of the shelf
+  const targetOffset = scrollContainer.scrollLeft + 40;
+
+  for (let i = 0; i < items.length; i++) {
+    const wrapper = items[i].closest(".shelf-item-wrapper");
+    if (wrapper) {
+      const diff = Math.abs(wrapper.offsetLeft - targetOffset);
+      if (diff < minDiff) {
+        minDiff = diff;
+        bestItem = items[i];
+      }
+    }
+  }
+
+  return bestItem;
+}
+
 // Global Keydown Router for Remote Control Navigation (uses Spatial Navigation)
 export function handleNavigation(keyCode, event = null) {
   if (elements.length === 0) return;
@@ -295,11 +324,69 @@ export function handleNavigation(keyCode, event = null) {
 
   if (!direction) return;
 
+  // Block navigation to the right if we are on the very last item of a Shelf
+  if (direction === 'RIGHT' && activeEl.getAttribute('data-last') === 'true') {
+    if (event) event.preventDefault();
+    return;
+  }
+
   const isActiveSidebar = activeEl.classList.contains('sidebar-item');
 
   // If navigating LEFT from sidebar, do nothing (leftmost edge)
   if (direction === 'LEFT' && isActiveSidebar) {
     return;
+  }
+
+  // If navigating LEFT on the very first item of a Shelf, focus the active sidebar item
+  if (direction === 'LEFT' && !isActiveSidebar && activeEl.getAttribute('data-first') === 'true') {
+    let currentHash = window.location.hash.slice(1) || "dashboard";
+    currentHash = currentHash.split('?')[0];
+    if (currentHash.startsWith("live")) {
+      currentHash = "live";
+    }
+
+    const sidebarEl = elements.find(el => 
+      el.classList.contains('sidebar-item') && 
+      el.getAttribute('data-hash') === currentHash
+    );
+
+    if (sidebarEl) {
+      const targetIndex = elements.indexOf(sidebarEl);
+      if (targetIndex !== -1) {
+        focusIndex.set(targetIndex);
+        if (event) event.preventDefault();
+        return;
+      }
+    }
+  }
+
+  // Handle UP/DOWN navigation between Shelf rows to focus the leftmost visible element
+  if ((direction === 'UP' || direction === 'DOWN') && !isActiveSidebar) {
+    const currentShelf = activeEl.closest(".shelf-container");
+    if (currentShelf) {
+      const shelves = Array.from(document.querySelectorAll(".shelf-container"));
+      const shelfIndex = shelves.indexOf(currentShelf);
+      let targetShelf = null;
+
+      if (direction === 'DOWN') {
+        targetShelf = shelves[shelfIndex + 1];
+      } else if (direction === 'UP') {
+        targetShelf = shelves[shelfIndex - 1];
+      }
+
+      if (targetShelf) {
+        const targetItem = getFirstVisibleItem(targetShelf);
+        if (targetItem) {
+          const targetIndex = elements.indexOf(targetItem);
+          if (targetIndex !== -1) {
+            focusIndex.set(targetIndex);
+            updateScroll(); // Trigger vertical scroll alignment for page container
+            if (event) event.preventDefault();
+            return;
+          }
+        }
+      }
+    }
   }
 
   // Determine candidate filters

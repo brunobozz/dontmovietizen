@@ -3,6 +3,8 @@
   import { mdiTelevision } from "@mdi/js";
 
   export let item;
+  export let isFirst = false;
+  export let isLast = false;
 
   let imageError = false;
 
@@ -13,6 +15,8 @@
 
 <div
   use:focusable
+  data-first={isFirst ? "true" : undefined}
+  data-last={isLast ? "true" : undefined}
   class="channel-cover focusable relative select-none"
   on:click
 >

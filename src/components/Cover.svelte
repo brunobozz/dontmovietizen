@@ -3,6 +3,8 @@
   import { mdiTelevision, mdiMovie, mdiFilmstrip } from "@mdi/js";
 
   export let item;
+  export let isFirst = false;
+  export let isLast = false;
 
   let imageError = false;
 
@@ -27,6 +29,8 @@
 
 <div
   use:focusable
+  data-first={isFirst ? "true" : undefined}
+  data-last={isLast ? "true" : undefined}
   class="cover-item focusable w-full aspect-[2/3] relative overflow-hidden"
   on:click
 >
