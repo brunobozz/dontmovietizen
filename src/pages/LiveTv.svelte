@@ -6,6 +6,8 @@
   import { onMount } from "svelte";
   import { readFile, fileExists } from "../services/storage.js";
 
+  import { saveFocus, restoreFocus } from "../services/navigation.js";
+
   export let params = {};
 
   let categories = [];
@@ -42,6 +44,7 @@
   });
 
   function handleSelectItem(event) {
+    saveFocus();
     selectedChannel = event.detail;
     showPlayer = true;
   }
@@ -49,6 +52,9 @@
   function handleClosePlayer() {
     showPlayer = false;
     selectedChannel = null;
+    setTimeout(() => {
+      restoreFocus();
+    }, 50);
   }
 </script>
 

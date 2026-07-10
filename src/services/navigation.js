@@ -5,6 +5,7 @@ export const focusIndex = writable(0);
 export const focusableElements = writable([]);
 
 let elements = [];
+let lastActivePageIndex = -1;
 
 // Register physical Tizen remote keys (like Back)
 export function registerTizenKeys() {
@@ -111,6 +112,15 @@ export function focusable(node) {
     const index = get(focusIndex);
     if (els[index] === node) {
       node.classList.add('focused');
+      
+      // Save last active content element index (ignore sidebar, modals, players)
+      const isContent = !node.classList.contains('sidebar-item') && 
+                        !node.closest('.modal-container') && 
+                        !node.closest('.player-container');
+      if (isContent) {
+        lastActivePageIndex = index;
+      }
+
       // Dispatch custom bubbled event for focus updates
       node.dispatchEvent(new CustomEvent('sn-focused', { bubbles: true, composed: true }));
       // If it is an input/textarea, trigger native browser focus to show TV virtual keyboard
@@ -141,6 +151,7 @@ export function focusable(node) {
       // Reset focus index if elements are empty (page transition) or index is out of bounds
       if (elements.length === 0) {
         focusIndex.set(0);
+        lastActivePageIndex = -1;
       } else {
         focusIndex.update(idx => {
           if (idx >= elements.length) {
@@ -307,6 +318,32 @@ export function handleNavigation(keyCode, event = null) {
       return;
     }
 
+    const isActiveSidebar = activeEl.classList.contains('sidebar-item');
+
+    // If focused on the content, pressing Back moves focus to the sidebar first!
+    if (!isActiveSidebar) {
+      let currentHash = window.location.hash.slice(1) || "dashboard";
+      currentHash = currentHash.split('?')[0];
+      if (currentHash.startsWith("live")) {
+        currentHash = "live";
+      }
+
+      const sidebarEl = elements.find(el => 
+        el.classList.contains('sidebar-item') && 
+        el.getAttribute('data-hash') === currentHash
+      );
+
+      if (sidebarEl) {
+        const targetIndex = elements.indexOf(sidebarEl);
+        if (targetIndex !== -1) {
+          focusIndex.set(targetIndex);
+          updateScroll();
+          return;
+        }
+      }
+    }
+
+    // If already focused on the sidebar, execute original back routing
     if (window.location.hash && window.location.hash !== '#dashboard') {
       window.location.hash = 'dashboard';
     } else {
@@ -331,6 +368,17 @@ export function handleNavigation(keyCode, event = null) {
   }
 
   const isActiveSidebar = activeEl.classList.contains('sidebar-item');
+
+  // If navigating RIGHT from the sidebar, check if we have a saved page focus index to restore
+  if (direction === 'RIGHT' && isActiveSidebar && lastActivePageIndex >= 0 && lastActivePageIndex < elements.length) {
+    const targetEl = elements[lastActivePageIndex];
+    if (targetEl && !targetEl.classList.contains('sidebar-item') && !targetEl.closest('.modal-container')) {
+      focusIndex.set(lastActivePageIndex);
+      updateScroll();
+      if (event) event.preventDefault();
+      return;
+    }
+  }
 
   // If navigating LEFT from sidebar, do nothing (leftmost edge)
   if (direction === 'LEFT' && isActiveSidebar) {
