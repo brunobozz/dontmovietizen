@@ -9,7 +9,7 @@
   import Search from "./pages/Search.svelte";
   import Settings from "./pages/Settings.svelte";
   import { handleNavigation, focusElementByDataAttribute } from "./services/navigation.js";
-  import { fileExists } from "./services/storage.js";
+  import { fileExists, deleteFile } from "./services/storage.js";
 
   // Mapeamento de rotas/telas do app
   const routes = {

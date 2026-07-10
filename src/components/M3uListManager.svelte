@@ -241,12 +241,77 @@
         await deleteFile("live.json");
         await deleteFile("series.json");
 
+        // Clear IndexedDB cache database
+        try {
+          indexedDB.deleteDatabase("dontmovietizen_db");
+        } catch (dbErr) {
+          console.warn("IndexedDB deletion error:", dbErr);
+        }
+
         lists = lists.filter((_, idx) => idx !== index);
         saveLists();
         progressValue = 100;
+
+        setTimeout(() => {
+          window.location.reload();
+        }, 300);
       } catch (e) {
         console.error(e);
         alert("Erro ao remover lista do disco.");
+      } finally {
+        isProcessing = false;
+        progressValue = 0;
+        progressText = "";
+      }
+    }
+  }
+
+  async function factoryReset() {
+    if (
+      confirm(
+        "ATENÇÃO: Deseja realmente realizar um reset de fábrica? Isso apagará permanentemente todas as listas, arquivos locais de cache e o banco de dados IndexedDB."
+      )
+    ) {
+      isProcessing = true;
+      progressValue = 30;
+      progressText = "Limpando arquivos locais...";
+
+      try {
+        // Delete all files
+        await deleteFile("movies.txt");
+        await deleteFile("live.json");
+        await deleteFile("series.json");
+
+        progressValue = 60;
+        progressText = "Removendo bancos de dados...";
+
+        // Clear both IndexedDB databases
+        try {
+          indexedDB.deleteDatabase("dontmovietizen_db");
+        } catch (e) {
+          console.warn("Error deleting DB:", e);
+        }
+        try {
+          indexedDB.deleteDatabase("dontmovietizen_fs");
+        } catch (e) {
+          console.warn("Error deleting FS DB:", e);
+        }
+
+        progressValue = 85;
+        progressText = "Limpando configurações...";
+
+        // Clear local storage completely
+        localStorage.clear();
+
+        progressValue = 100;
+        progressText = "Reiniciando aplicativo...";
+
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
+      } catch (err) {
+        console.error(err);
+        alert("Erro ao realizar o reset de fábrica.");
       } finally {
         isProcessing = false;
         progressValue = 0;
@@ -395,28 +460,40 @@
       </div>
     {/if}
 
-    <div class="flex justify-end gap-4 mt-4 select-none">
+    <div class="flex justify-between items-center mt-8 select-none">
       {#if !showForm && !showSyncForm}
-        <!-- Sync Code Trigger -->
+        <!-- Left Side: Factory Reset -->
         <button
           use:focusable
-          class="btn-primary focusable flex items-center justify-center px-6 py-4 rounded-xl text-sm font-semibold transition-all duration-300"
-          on:click={() => (showSyncForm = true)}
+          class="btn-danger focusable flex items-center justify-center px-6 py-4 rounded-xl text-sm font-semibold transition-all duration-300"
+          on:click={factoryReset}
         >
-          <span class="text-nowrap">Sincronizar via Código</span>
+          <span class="text-nowrap font-bold">Reset de Fábrica</span>
         </button>
 
-        <!-- M3U URL Trigger -->
-        <button
-          use:focusable
-          class="btn-secondary focusable flex items-center justify-center px-6 py-4 rounded-xl text-sm font-semibold transition-all duration-300"
-          on:click={() => (showForm = true)}
-        >
-          <svg viewBox="0 0 24 24" class="w-6 h-6 fill-current mr-2"
-            ><path d={mdiPlus} /></svg
+        <!-- Right Side: Triggers -->
+        <div class="flex gap-4">
+          <!-- Sync Code Trigger -->
+          <button
+            use:focusable
+            class="btn-primary focusable flex items-center justify-center px-6 py-4 rounded-xl text-sm font-semibold transition-all duration-300"
+            on:click={() => (showSyncForm = true)}
           >
-          <span class="text-nowrap">Adicionar via URL</span>
-        </button>
+            <span class="text-nowrap">Sincronizar via Código</span>
+          </button>
+
+          <!-- M3U URL Trigger -->
+          <button
+            use:focusable
+            class="btn-secondary focusable flex items-center justify-center px-6 py-4 rounded-xl text-sm font-semibold transition-all duration-300"
+            on:click={() => (showForm = true)}
+          >
+            <svg viewBox="0 0 24 24" class="w-6 h-6 fill-current mr-2"
+              ><path d={mdiPlus} /></svg
+            >
+            <span class="text-nowrap">Adicionar via URL</span>
+          </button>
+        </div>
       {/if}
     </div>
   {/if}
@@ -504,7 +581,20 @@
       transform: scale(1.05);
     }
   }
+  .btn-danger {
+    background-color: #1e293b;
+    color: #f43f5e;
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
 
+    &:global(.focused) {
+      background-color: #e11d48;
+      color: #ffffff;
+      border-color: #fda4af;
+      box-shadow: 0 0 15px rgba(244, 63, 94, 0.4);
+      transform: scale(1.05);
+    }
+  }
   .list-item-row {
     border: 1px solid rgba(255, 255, 255, 0.08);
   }

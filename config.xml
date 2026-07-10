@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<widget xmlns="http://www.w3.org/ns/widgets" xmlns:tizen="http://tizen.org/ns/widgets" id="http://yourdomain/dontmovietizen" version="1.0.2" viewmodes="maximized">
+<widget xmlns="http://www.w3.org/ns/widgets" xmlns:tizen="http://tizen.org/ns/widgets" id="http://yourdomain/dontmovietizen" version="1.0.6" viewmodes="maximized">
    <name>dontmovietizen</name>
    <icon src="icon.png"></icon>
    <content src="dist/index.html"></content>
@@ -8,8 +8,10 @@
    <!-- Enable outbound network connections for video streaming -->
    <access origin="*" subdomains="true"></access>
    
-   <!-- Required privileges for IPTV playback -->
+   <!-- Required privileges for IPTV playback and local storage -->
    <tizen:privilege name="http://tizen.org/privilege/internet"></tizen:privilege>
+   <tizen:privilege name="http://tizen.org/privilege/filesystem.read"></tizen:privilege>
+   <tizen:privilege name="http://tizen.org/privilege/filesystem.write"></tizen:privilege>
    
    <tizen:setting screen-orientation="landscape" context-menu="enable" background-support="disable" encryption="disable" install-location="auto" hwkey-event="enable"></tizen:setting>
    <tizen:application id="AeqayXtEeN.dontmovietizen" package="AeqayXtEeN" required_version="2.3"></tizen:application>

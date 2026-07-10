@@ -5,8 +5,10 @@ const DB_NAME = "dontmovietizen_fs";
 const STORE_NAME = "files";
 let dbInstance = null;
 
-// Helper to check if Tizen API is available
-const isTizen = typeof window !== "undefined" && typeof window.tizen !== "undefined" && window.tizen.filesystem;
+// Force IndexedDB virtual filesystem even on Tizen TV, because Tizen's 
+// native filesystem streams cause main UI thread freezes and memory crashes 
+// when reading large text files (IPTV playlists).
+const isTizen = false;
 
 // Initialize IndexedDB database for PC fallback
 function initDb() {
@@ -184,25 +186,56 @@ export async function appendFile(filename, text) {
 
 export async function readFile(filename) {
   if (isTizen) {
-    const dir = await resolveTizenDir();
-    return new Promise((resolve, reject) => {
-      dir.resolve(
-        filename,
-        (file) => {
-          file.openStream(
-            "r",
-            (stream) => {
-              const content = stream.read(file.fileSize);
-              stream.close();
-              resolve(content);
+    try {
+      const dir = await resolveTizenDir();
+      return new Promise((resolve, reject) => {
+        try {
+          dir.resolve(
+            filename,
+            (file) => {
+              try {
+                if (file.fileSize === 0) {
+                  resolve("");
+                  return;
+                }
+                file.openStream(
+                  "r",
+                  (stream) => {
+                    try {
+                      const content = stream.read(file.fileSize);
+                      stream.close();
+                      resolve(content);
+                    } catch (readError) {
+                      console.error("Tizen stream read error:", readError);
+                      try { stream.close(); } catch(e){}
+                      reject(readError);
+                    }
+                  },
+                  (err) => {
+                    console.error("Tizen openStream read error callback:", err);
+                    reject(err);
+                  },
+                  "UTF-8"
+                );
+              } catch (openError) {
+                console.error("Tizen openStream sync error:", openError);
+                reject(openError);
+              }
             },
-            (err) => reject(err),
-            "UTF-8"
+            (err) => {
+              console.warn("Tizen file resolve read error callback:", err);
+              reject(err);
+            }
           );
-        },
-        (err) => reject(err)
-      );
-    });
+        } catch (resolveError) {
+          console.error("Tizen file resolve sync error:", resolveError);
+          reject(resolveError);
+        }
+      });
+    } catch (dirError) {
+      console.error("Tizen resolveTizenDir error:", dirError);
+      throw dirError;
+    }
   } else {
     const db = await initDb();
     return new Promise((resolve, reject) => {
