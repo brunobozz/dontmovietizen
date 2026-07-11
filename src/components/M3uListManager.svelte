@@ -3,7 +3,7 @@
   import { focusable } from "../services/navigation.js";
   import { mdiPlus, mdiTrashCan } from "@mdi/js";
   import { parseM3uAndSave } from "../services/m3uParser.js";
-  import { deleteFile, writeFile } from "../services/storage.js";
+  import { deleteFile, writeFile, fileExists, readFile } from "../services/storage.js";
 
   let lists = [];
   let showForm = false;
@@ -15,7 +15,73 @@
   let progressText = "";
   let progressValue = 0;
 
-  onMount(() => {
+  let fileStats = {
+    moviesSize: 0,
+    liveSize: 0,
+    seriesSize: 0,
+    metadataSize: 0,
+    moviesExists: false,
+    liveExists: false,
+    seriesExists: false,
+    metadataExists: false,
+    categories: {
+      live: 0,
+      movies: 0,
+      series: 0
+    }
+  };
+
+  async function loadFileStats() {
+    try {
+      fileStats.moviesExists = await fileExists("movies.txt");
+      fileStats.liveExists = await fileExists("live.json");
+      fileStats.seriesExists = await fileExists("series.json");
+      fileStats.metadataExists = await fileExists("metadata.json");
+
+      if (fileStats.moviesExists) {
+        const text = await readFile("movies.txt");
+        fileStats.moviesSize = text ? text.length : 0;
+      } else {
+        fileStats.moviesSize = 0;
+      }
+
+      if (fileStats.liveExists) {
+        const text = await readFile("live.json");
+        fileStats.liveSize = text ? text.length : 0;
+      } else {
+        fileStats.liveSize = 0;
+      }
+
+      if (fileStats.seriesExists) {
+        const text = await readFile("series.json");
+        fileStats.seriesSize = text ? text.length : 0;
+      } else {
+        fileStats.seriesSize = 0;
+      }
+
+      if (fileStats.metadataExists) {
+        const text = await readFile("metadata.json");
+        fileStats.metadataSize = text ? text.length : 0;
+        if (text) {
+          try {
+            const meta = JSON.parse(text);
+            fileStats.categories.live = meta.live ? meta.live.length : 0;
+            fileStats.categories.movies = meta.movies ? meta.movies.length : 0;
+            fileStats.categories.series = meta.series ? meta.series.length : 0;
+          } catch (e) {
+            console.error("Failed to parse metadata.json:", e);
+          }
+        }
+      } else {
+        fileStats.metadataSize = 0;
+        fileStats.categories = { live: 0, movies: 0, series: 0 };
+      }
+    } catch (err) {
+      console.error("Failed to load file stats:", err);
+    }
+  }
+
+  onMount(async () => {
     const saved = localStorage.getItem("m3u_lists");
     if (saved) {
       try {
@@ -28,6 +94,7 @@
         console.error(e);
       }
     }
+    await loadFileStats();
   });
 
   function saveLists() {
@@ -80,13 +147,18 @@
       progressText = "Baixando canais de TV...";
       await downloadAndSaveFile(data.live_url, "live.json");
 
-      progressValue = 65;
+      progressValue = 60;
       progressText = "Baixando filmes...";
       await downloadAndSaveFile(data.movies_url, "movies.txt");
 
-      progressValue = 85;
+      progressValue = 80;
       progressText = "Baixando séries...";
       await downloadAndSaveFile(data.series_url, "series.json");
+
+      progressValue = 90;
+      progressText = "Baixando metadados...";
+      const metadataUrl = data.live_url.replace("live.json", "metadata.json");
+      await downloadAndSaveFile(metadataUrl, "metadata.json");
 
       progressValue = 100;
       progressText = "Sincronização finalizada!";
@@ -101,6 +173,8 @@
         seriesUrl: data.series_url
       }];
       saveLists();
+
+      await loadFileStats();
 
       alert("Lista sincronizada com sucesso!");
       syncCode = "";
@@ -140,6 +214,7 @@
       // Persist M3U registration list in storage
       lists = [...lists, { url }];
       saveLists();
+      await loadFileStats();
 
       alert(
         `Lista importada com sucesso!\nEstruturados:\n- ${result.movies} Filmes\n- ${result.series} Séries (${result.episodes} Episódios)\n- ${result.live} Canais`
@@ -183,13 +258,18 @@
         progressText = "Baixando canais de TV...";
         await downloadAndSaveFile(data.live_url, "live.json");
 
-        progressValue = 65;
+        progressValue = 60;
         progressText = "Baixando filmes...";
         await downloadAndSaveFile(data.movies_url, "movies.txt");
 
-        progressValue = 85;
+        progressValue = 80;
         progressText = "Baixando séries...";
         await downloadAndSaveFile(data.series_url, "series.json");
+
+        progressValue = 90;
+        progressText = "Baixando metadados...";
+        const metadataUrl = data.live_url.replace("live.json", "metadata.json");
+        await downloadAndSaveFile(metadataUrl, "metadata.json");
 
         progressValue = 100;
         progressText = "Atualização concluída!";
@@ -198,6 +278,7 @@
         lists[index].liveUrl = data.live_url;
         lists[index].seriesUrl = data.series_url;
         saveLists();
+        await loadFileStats();
 
         alert("Lista atualizada com sucesso por código!");
       } else {
@@ -206,6 +287,7 @@
           progressValue = percentage;
           progressText = `Processando e Salvando (${percentage}%)...`;
         });
+        await loadFileStats();
 
         alert(
           `Lista atualizada com sucesso!\nEstruturados:\n- ${result.movies} Filmes\n- ${result.series} Séries (${result.episodes} Episódios)\n- ${result.live} Canais`
@@ -240,6 +322,7 @@
         await deleteFile("movies.txt");
         await deleteFile("live.json");
         await deleteFile("series.json");
+        await deleteFile("metadata.json");
 
         // Clear IndexedDB cache database
         try {
@@ -281,6 +364,7 @@
         await deleteFile("movies.txt");
         await deleteFile("live.json");
         await deleteFile("series.json");
+        await deleteFile("metadata.json");
 
         progressValue = 60;
         progressText = "Removendo bancos de dados...";
@@ -384,6 +468,50 @@
         {/each}
       {/if}
     </div>
+
+    <!-- Diagnostic / Local Storage Info -->
+    <div class="diagnostic-container mt-6 text-left select-none">
+      <h3 class="diagnostic-title">Diagnóstico de Armazenamento Local</h3>
+      <div class="diagnostic-grid">
+        <div class="diagnostic-card">
+          <span class="diagnostic-label">Canais (live.json)</span>
+          {#if fileStats.liveExists}
+            <span class="status-saved">Salvo</span>
+            <span class="status-size">{(fileStats.liveSize / 1024).toFixed(1)} KB</span>
+            {#if fileStats.metadataExists}
+              <span class="status-cats">{fileStats.categories.live} categorias</span>
+            {/if}
+          {:else}
+            <span class="status-missing">Não encontrado</span>
+          {/if}
+        </div>
+        <div class="diagnostic-card">
+          <span class="diagnostic-label">Filmes (movies.txt)</span>
+          {#if fileStats.moviesExists}
+            <span class="status-saved">Salvo</span>
+            <span class="status-size">{(fileStats.moviesSize / 1024).toFixed(1)} KB</span>
+            {#if fileStats.metadataExists}
+              <span class="status-cats">{fileStats.categories.movies} categorias</span>
+            {/if}
+          {:else}
+            <span class="status-missing">Não encontrado</span>
+          {/if}
+        </div>
+        <div class="diagnostic-card">
+          <span class="diagnostic-label">Séries (series.json)</span>
+          {#if fileStats.seriesExists}
+            <span class="status-saved">Salvo</span>
+            <span class="status-size">{(fileStats.seriesSize / 1024).toFixed(1)} KB</span>
+            {#if fileStats.metadataExists}
+              <span class="status-cats">{fileStats.categories.series} categorias</span>
+            {/if}
+          {:else}
+            <span class="status-missing">Não encontrado</span>
+          {/if}
+        </div>
+      </div>
+    </div>
+
     {#if showSyncForm}
       <div class="form-container flex flex-col mb-4">
         <div class="flex flex-col mb-4">
@@ -608,5 +736,76 @@
       background: #1e293b !important;
       box-shadow: 0 0 15px rgba(14, 165, 233, 0.3);
     }
+  }
+
+  .diagnostic-container {
+    padding: 24px;
+    background-color: rgba(15, 23, 42, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    margin-top: 24px;
+  }
+
+  .diagnostic-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #94a3b8;
+    margin-top: 0;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .diagnostic-grid {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+  }
+
+  .diagnostic-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 12px 16px;
+    background-color: rgba(30, 41, 59, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 12px;
+    margin-right: 16px;
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+
+  .diagnostic-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #cbd5e1;
+    margin-bottom: 4px;
+  }
+
+  .status-saved {
+    font-size: 12px;
+    font-weight: 700;
+    color: #34d399;
+  }
+
+  .status-size {
+    font-size: 10px;
+    color: #64748b;
+    margin-top: 4px;
+  }
+
+  .status-missing {
+    font-size: 12px;
+    font-weight: 700;
+    color: #f87171;
+  }
+
+  .status-cats {
+    font-size: 10px;
+    font-weight: 600;
+    color: #38bdf8;
+    margin-top: 2px;
   }
 </style>

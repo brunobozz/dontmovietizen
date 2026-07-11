@@ -29,8 +29,17 @@
   $: typeInfo = getMediaTypeInfo(item.type);
 
   // Series Season & Episode State Grouping
-  const seasonsList = item.seasons ? Object.keys(item.seasons).sort((a, b) => Number(a) - Number(b)) : [];
-  let activeSeason = seasonsList[0] || null;
+  let activeSeason = null;
+  $: seasonsList = item.seasons
+    ? Object.keys(item.seasons).sort((a, b) => {
+        if (a === "Especiais") return 1;
+        if (b === "Especiais") return -1;
+        return Number(a) - Number(b);
+      })
+    : [];
+  $: if (!activeSeason && seasonsList.length > 0) {
+    activeSeason = seasonsList[0];
+  }
 
   function toggleSeason(seasonNum) {
     if (activeSeason === seasonNum) {
@@ -43,7 +52,9 @@
   function playEpisode(ep) {
     // Inject the selected episode details into the item dynamically
     item.url = ep.url;
-    item.currentEpisodeName = `${cleanName} - Temp ${activeSeason} Ep ${ep.episode}`;
+    item.currentEpisodeName = activeSeason === "Especiais"
+      ? `${cleanName} - Ep ${ep.episode} (Especiais)`
+      : `${cleanName} - Temp ${activeSeason} Ep ${ep.episode}`;
     onPlay();
   }
 
@@ -52,8 +63,49 @@
     onClose();
   }
 
-  onMount(() => {
+  let isLoadingEpisodes = false;
+
+  function getActiveSyncCode() {
+    try {
+      const saved = localStorage.getItem("m3u_lists");
+      if (saved) {
+        const lists = JSON.parse(saved);
+        const active = lists.find(l => l.isSyncCode);
+        return active ? active.code : null;
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  onMount(async () => {
     window.addEventListener("close-modal", handleCloseEvent);
+
+    if (item.type === "series" && (!item.seasons || Object.keys(item.seasons).length === 0)) {
+      isLoadingEpisodes = true;
+      try {
+        const code = getActiveSyncCode();
+        if (code) {
+          const isLocal = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
+          const base = isLocal ? "http://localhost:3000" : "https://dontmovie-react.vercel.app";
+          const res = await fetch(`${base}/api/series?code=${code}&name=${encodeURIComponent(item.name)}`);
+          if (res.ok) {
+            const resData = await res.json();
+            if (resData.status === "success" && resData.seasons) {
+              item.seasons = resData.seasons;
+              if (Object.keys(resData.seasons).length > 0) {
+                const sortedKeys = Object.keys(resData.seasons).sort((a, b) => Number(a) - Number(b));
+                activeSeason = sortedKeys[0];
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Error loading on-demand series episodes:", err);
+      } finally {
+        isLoadingEpisodes = false;
+      }
+    }
+
     return () => {
       window.removeEventListener("close-modal", handleCloseEvent);
     };
@@ -122,40 +174,52 @@
       {#if item.type === "series"}
         <!-- Seasons Accordion List -->
         <div class="seasons-accordion flex flex-col w-full overflow-y-auto pr-2 mt-2 select-none">
-          {#each seasonsList as seasonNum}
-            <div class="season-section mb-3">
-              <!-- Season Header Button -->
-              <button
-                use:focusable
-                class="focusable season-header-btn flex justify-between items-center w-full px-5 py-4 bg-slate-900 border border-glass-border rounded-xl text-left"
-                on:click={() => toggleSeason(seasonNum)}
-              >
-                <span class="font-bold text-white text-base">Temporada {seasonNum}</span>
-                <span class="text-xs text-sky-400 font-bold bg-sky-950/40 px-3 py-1 rounded-full border border-sky-900/30">
-                  {item.seasons[seasonNum].length} episódios
-                </span>
-              </button>
-
-              <!-- Episodes List (visible if season is active/expanded) -->
-              {#if activeSeason === seasonNum}
-                <div class="episodes-container flex flex-col w-full mt-3 p-3 border border-glass-border rounded-xl bg-slate-950/50">
-                  {#each item.seasons[seasonNum] as ep}
-                    <button
-                      use:focusable
-                      class="focusable episode-item flex justify-between items-center px-4 py-3 rounded-lg text-sm text-left mb-2 text-slate-300 w-full"
-                      on:click={() => playEpisode(ep)}
-                    >
-                      <div class="flex items-center">
-                        <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current text-sky-400 mr-3"><path d={mdiPlay} /></svg>
-                        <span class="font-semibold text-white mr-2">Ep. {ep.episode}</span>
-                        <span class="truncate max-w-[280px] text-slate-400 font-light">{ep.name}</span>
-                      </div>
-                    </button>
-                  {/each}
-                </div>
-              {/if}
+          {#if isLoadingEpisodes}
+            <div style="padding: 40px 0; text-align: center; width: 100%;">
+              <span style="font-size: 14px; font-weight: 600; color: #94a3b8; display: block; animation: pulse 2s infinite;">Carregando episódios da série...</span>
             </div>
-          {/each}
+          {:else if seasonsList.length === 0}
+            <div style="padding: 40px 0; text-align: center; width: 100%;">
+              <span style="font-size: 14px; font-weight: 500; color: #64748b;">Nenhum episódio disponível para esta série.</span>
+            </div>
+          {:else}
+            {#each seasonsList as seasonNum}
+              <div class="season-section mb-3">
+                <!-- Season Header Button -->
+                <button
+                  use:focusable
+                  class="focusable season-header-btn flex justify-between items-center w-full px-5 py-4 bg-slate-900 border border-glass-border rounded-xl text-left"
+                  on:click={() => toggleSeason(seasonNum)}
+                >
+                  <span class="font-bold text-white text-base">
+                    {seasonNum === "Especiais" ? "Especiais / Perdidos" : `Temporada ${seasonNum}`}
+                  </span>
+                  <span class="text-xs text-sky-400 font-bold bg-sky-950/40 px-3 py-1 rounded-full border border-sky-900/30">
+                    {item.seasons[seasonNum].length} episódios
+                  </span>
+                </button>
+
+                <!-- Episodes List (visible if season is active/expanded) -->
+                {#if activeSeason === seasonNum}
+                  <div class="episodes-container flex flex-col w-full mt-3 p-3 border border-glass-border rounded-xl bg-slate-950/50">
+                    {#each item.seasons[seasonNum] as ep}
+                      <button
+                        use:focusable
+                        class="focusable episode-item flex justify-between items-center px-4 py-3 rounded-lg text-sm text-left mb-2 text-slate-300 w-full"
+                        on:click={() => playEpisode(ep)}
+                      >
+                        <div class="flex items-center">
+                          <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current text-sky-400 mr-3"><path d={mdiPlay} /></svg>
+                          <span class="font-semibold text-white mr-2">Ep. {ep.episode}</span>
+                          <span class="truncate max-w-[280px] text-slate-400 font-light">{ep.name}</span>
+                        </div>
+                      </button>
+                    {/each}
+                  </div>
+                {/if}
+              </div>
+            {/each}
+          {/if}
         </div>
 
         <!-- Back Button for Series -->
