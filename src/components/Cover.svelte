@@ -1,12 +1,14 @@
 <script>
   import { focusable } from "../services/navigation.js";
   import { mdiTelevision, mdiMovie, mdiFilmstrip } from "@mdi/js";
+  import SkeletonCover from "./SkeletonCover.svelte";
 
   export let item;
   export let isFirst = false;
   export let isLast = false;
 
   let imageError = false;
+  let imageLoaded = false;
 
   function handleImageError() {
     imageError = true;
@@ -36,11 +38,15 @@
 >
   <!-- Background Image or Fallback -->
   {#if item.logo && !imageError}
+    {#if !imageLoaded}
+      <SkeletonCover type={item.type} />
+    {/if}
     <img
       src={item.logo}
       alt={item.name}
+      on:load={() => imageLoaded = true}
       on:error={handleImageError}
-      class="w-full h-full object-cover bg-slate-950"
+      class="w-full h-full object-cover bg-slate-950 {imageLoaded ? '' : 'hidden'}"
     />
   {:else}
     <!-- Premium Fallback Card -->
@@ -69,7 +75,7 @@
   {/if}
 
   <!-- Overlays when image IS loaded (Gradient + Title on hover/focus) -->
-  {#if item.logo && !imageError}
+  {#if item.logo && !imageError && imageLoaded}
     <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 pointer-events-none cover-overlay flex flex-col justify-end p-3">
       <span class="text-[10px] text-slate-400 uppercase font-semibold truncate mb-0.5">{item.category}</span>
       <span class="text-xs font-bold text-white leading-tight line-clamp-2">{item.name}</span>
