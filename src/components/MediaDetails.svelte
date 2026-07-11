@@ -3,6 +3,7 @@
   import { focusable } from "../services/navigation.js";
   import { mdiMovie, mdiFilmstrip, mdiTelevision, mdiPlay, mdiArrowLeft } from "@mdi/js";
   import EpisodesList from "./EpisodesList.svelte";
+  import SkeletonEpisodes from "./SkeletonEpisodes.svelte";
 
   export let item;
   export let onClose;
@@ -164,9 +165,7 @@
       {#if item.type === "series"}
         <!-- Seasons 50/50 generic list -->
         {#if isLoadingEpisodes}
-          <div style="padding: 40px 0; text-align: center; width: 100%;">
-            <span style="font-size: 14px; font-weight: 600; color: #94a3b8; display: block; animation: pulse 2s infinite;">Carregando episódios da série...</span>
-          </div>
+          <SkeletonEpisodes />
         {:else if !item.seasons || Object.keys(item.seasons).length === 0}
           <div style="padding: 40px 0; text-align: center; width: 100%;">
             <span style="font-size: 14px; font-weight: 500; color: #64748b;">Nenhum episódio disponível para esta série.</span>
