@@ -5,6 +5,7 @@
   const dispatch = createEventDispatcher();
   
   export let value = "";
+  export let activeFilter = "all";
 
   const rows = [
     ["A", "B", "C", "D", "E", "F"],
@@ -94,6 +95,65 @@
       {/each}
     </div>
   {/each}
+
+  <!-- Filter Radio Buttons Row -->
+  <div class="grid grid-cols-12 w-full mt-2">
+    <!-- Option: Todos -->
+    <button
+      use:focusable
+      class="key-btn radio-btn col-span-3 flex flex-col items-center justify-center rounded-xl border-2 border-transparent py-2 {activeFilter === 'all' ? 'active-radio' : 'inactive-radio'}"
+      on:click={() => { activeFilter = 'all'; dispatch("filterChange"); }}
+    >
+      <span class="radio-label text-[10px] font-bold tracking-wider mb-1">TODOS</span>
+      <div class="radio-circle w-4 h-4 rounded-full border flex items-center justify-center {activeFilter === 'all' ? 'border-sky-500 bg-sky-950/40' : 'border-slate-600 bg-slate-950/60'}">
+        {#if activeFilter === 'all'}
+          <div class="radio-dot w-2 h-2 rounded-full bg-sky-500"></div>
+        {/if}
+      </div>
+    </button>
+
+    <!-- Option: Filmes -->
+    <button
+      use:focusable
+      class="key-btn radio-btn col-span-3 flex flex-col items-center justify-center rounded-xl border-2 border-transparent py-2 {activeFilter === 'movie' ? 'active-radio' : 'inactive-radio'}"
+      on:click={() => { activeFilter = 'movie'; dispatch("filterChange"); }}
+    >
+      <span class="radio-label text-[10px] font-bold tracking-wider mb-1">FILMES</span>
+      <div class="radio-circle w-4 h-4 rounded-full border flex items-center justify-center {activeFilter === 'movie' ? 'border-sky-500 bg-sky-950/40' : 'border-slate-600 bg-slate-950/60'}">
+        {#if activeFilter === 'movie'}
+          <div class="radio-dot w-2 h-2 rounded-full bg-sky-500"></div>
+        {/if}
+      </div>
+    </button>
+
+    <!-- Option: Séries -->
+    <button
+      use:focusable
+      class="key-btn radio-btn col-span-3 flex flex-col items-center justify-center rounded-xl border-2 border-transparent py-2 {activeFilter === 'series' ? 'active-radio' : 'inactive-radio'}"
+      on:click={() => { activeFilter = 'series'; dispatch("filterChange"); }}
+    >
+      <span class="radio-label text-[10px] font-bold tracking-wider mb-1">SÉRIES</span>
+      <div class="radio-circle w-4 h-4 rounded-full border flex items-center justify-center {activeFilter === 'series' ? 'border-sky-500 bg-sky-950/40' : 'border-slate-600 bg-slate-950/60'}">
+        {#if activeFilter === 'series'}
+          <div class="radio-dot w-2 h-2 rounded-full bg-sky-500"></div>
+        {/if}
+      </div>
+    </button>
+
+    <!-- Option: Canais -->
+    <button
+      use:focusable
+      class="key-btn radio-btn col-span-3 flex flex-col items-center justify-center rounded-xl border-2 border-transparent py-2 {activeFilter === 'live' ? 'active-radio' : 'inactive-radio'}"
+      on:click={() => { activeFilter = 'live'; dispatch("filterChange"); }}
+    >
+      <span class="radio-label text-[10px] font-bold tracking-wider mb-1">CANAIS</span>
+      <div class="radio-circle w-4 h-4 rounded-full border flex items-center justify-center {activeFilter === 'live' ? 'border-sky-500 bg-sky-950/40' : 'border-slate-600 bg-slate-950/60'}">
+        {#if activeFilter === 'live'}
+          <div class="radio-dot w-2 h-2 rounded-full bg-sky-500"></div>
+        {/if}
+      </div>
+    </button>
+  </div>
 </div>
 
 <style lang="scss">
@@ -120,6 +180,27 @@
 
   .top-key {
     height: calc((32vw - 78.4px) / 6 - 8px);
+  }
+
+  .radio-btn {
+    height: calc((32vw - 78.4px) / 6 - 8px);
+    
+    &.active-radio {
+      background-color: rgba(14, 165, 233, 0.08) !important;
+      border-color: rgba(14, 165, 233, 0.15);
+      
+      .radio-label {
+        color: #38bdf8;
+      }
+    }
+    
+    &.inactive-radio {
+      background-color: rgba(15, 23, 42, 0.4) !important;
+      
+      .radio-label {
+        color: #64748b;
+      }
+    }
   }
   .search-input-preview {
     white-space: pre;

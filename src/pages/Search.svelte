@@ -11,6 +11,7 @@
   let query = "";
   let results = [];
   let isLoading = true;
+  let activeFilter = "all";
 
   let moviesData = "";
   let liveData = null;
@@ -265,15 +266,21 @@
     focusModal();
   }
 
-  // Reactively filter items based on the search query
+  // Reactively filter items based on the search query and active filter
   $: {
     const trimmedQuery = query.trim().toLowerCase();
+
+    let filteredDefault = defaultResults;
+    if (activeFilter !== "all") {
+      filteredDefault = defaultResults.filter(item => item.type === activeFilter);
+    }
+
     if (!trimmedQuery) {
-      results = defaultResults;
+      results = filteredDefault;
     } else {
-      const matchedMovies = searchRawData(moviesData, trimmedQuery, "movie", 30);
-      const matchedLive = searchLive(liveData, trimmedQuery, 30);
-      const matchedSeries = searchSeries(seriesData, trimmedQuery, 30);
+      const matchedMovies = (activeFilter === "all" || activeFilter === "movie") ? searchRawData(moviesData, trimmedQuery, "movie", 30) : [];
+      const matchedLive = (activeFilter === "all" || activeFilter === "live") ? searchLive(liveData, trimmedQuery, 30) : [];
+      const matchedSeries = (activeFilter === "all" || activeFilter === "series") ? searchSeries(seriesData, trimmedQuery, 30) : [];
       
       results = [...matchedMovies, ...matchedSeries, ...matchedLive];
     }
@@ -286,7 +293,10 @@
     class="w-[32%] flex flex-col h-full select-none shrink-0"
     style="padding: 40px; padding-right:0;"
   >
-    <SearchKeyboard bind:value={query} />
+    <SearchKeyboard 
+      bind:value={query} 
+      bind:activeFilter 
+    />
   </div>
 
   <!-- Right Side: Results Grid (Cover List) -->
