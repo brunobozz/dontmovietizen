@@ -1,7 +1,7 @@
 {
   "name": "dontmovietizen",
   "private": true,
-  "version": "1.0.13",
+  "version": "1.0.14",
   "type": "module",
   "scripts": {
     "prebuild": "node bump-version.js",

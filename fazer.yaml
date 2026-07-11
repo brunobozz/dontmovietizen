@@ -1,0 +1,25 @@
+
+#PLAYER
+- Criar botão de aspect ratio (1:1, 4:3, 16:9)
+
+#MEDIA DETAILS
+- adicionar API para pegar dados da midia
+- corrigir layout de temporada e episodios
+
+#CHANNELS
+- agrupar o mesmo canal com varias qualidades (HD, FHD, 4K)
+
+#SEARCH
+- bugfix: nao aparecem as informações do cover na TV
+- lupa aumenta quando tem texto buscado no PC
+- ao dar espaço na busca sinalizar no texto
+- mover botao de espaço para baixo dos caracteres
+- mover botão X para ao lado do texto da busca
+- trazer alguma lista quando nao houver busca
+
+#SHELFS
+- criar item para abrir a categoria
+- 
+
+#NOVO
+- Criar favoritos para cada midia
