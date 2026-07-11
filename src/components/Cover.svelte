@@ -50,24 +50,25 @@
     />
   {:else}
     <!-- Premium Fallback Card -->
-    <div class="absolute inset-0 flex flex-col justify-between p-4 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 select-none">
-      <div class="flex justify-between items-start w-full">
-        <!-- Media Type Badge -->
-        <span class="text-[10px] uppercase tracking-wider font-extrabold px-2 py-0.5 rounded text-white {info.color}">
-          {info.label}
-        </span>
-        <!-- Media Icon -->
-        <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current text-slate-500">
+    <div class="absolute inset-0 bg-slate-950 select-none flex flex-col justify-end p-3">
+      <!-- Media Icon (Centered) -->
+      <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <svg viewBox="0 0 24 24" class="w-12 h-12 fill-current text-slate-800/60">
           <path d={info.icon} />
         </svg>
       </div>
 
-      <!-- Item Title -->
-      <div class="flex flex-col text-left w-full mt-auto">
-        <span class="text-xs text-slate-400 font-medium uppercase tracking-wide truncate mb-1">
+      <!-- Mini badge at top-right of the fallback card (exactly matching the image badge) -->
+      <span class="absolute top-2 right-2 text-[8px] uppercase tracking-wider font-extrabold px-1.5 py-0.5 rounded text-white {info.color} pointer-events-none shadow-md">
+        {info.label}
+      </span>
+
+      <!-- Text overlay at the bottom (Category + Title) -->
+      <div class="flex flex-col text-left w-full mt-auto relative z-10">
+        <span class="text-[10px] text-slate-400 uppercase font-semibold truncate mb-0.5">
           {item.category || "Outros"}
         </span>
-        <span class="text-sm font-bold text-white leading-snug line-clamp-3">
+        <span class="text-xs font-bold text-white leading-tight line-clamp-2">
           {item.name}
         </span>
       </div>

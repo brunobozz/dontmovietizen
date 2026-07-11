@@ -1,7 +1,6 @@
 <script>
   import { createEventDispatcher } from "svelte";
   import Cover from "./Cover.svelte";
-  import ChannelCover from "./ChannelCover.svelte";
 
   export let title = "";
   export let items = [];
@@ -65,26 +64,13 @@
     on:sn-focused={handleItemFocused}
   >
     {#each visibleItems as item, index (item.url)}
-      <div
-        class="shelf-item-wrapper flex-shrink-0 {item.type === 'live'
-          ? 'w-live'
-          : 'w-media'}"
-      >
-        {#if item.type === "live"}
-          <ChannelCover
-            {item}
-            isFirst={index === 0}
-            isLast={index === items.length - 1}
-            on:click={() => handleSelectItem(item)}
-          />
-        {:else}
-          <Cover
-            {item}
-            isFirst={index === 0}
-            isLast={index === items.length - 1}
-            on:click={() => handleSelectItem(item)}
-          />
-        {/if}
+      <div class="shelf-item-wrapper flex-shrink-0 w-media">
+        <Cover
+          {item}
+          isFirst={index === 0}
+          isLast={index === items.length - 1}
+          on:click={() => handleSelectItem(item)}
+        />
       </div>
     {/each}
   </div>
