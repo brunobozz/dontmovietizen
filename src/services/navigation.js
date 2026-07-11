@@ -682,6 +682,11 @@ export function handleNavigation(keyCode, event = null) {
     for (let i = 0; i < elements.length; i++) {
       const candidate = elements[i];
       if (candidate === activeEl) continue;
+
+      // Skip hidden elements (e.g. elements on hidden pages)
+      if (candidate.offsetWidth === 0 && candidate.offsetHeight === 0) {
+        continue;
+      }
       
       const isCandidateSidebar = candidate.classList.contains('sidebar-item');
       if (isCandidateSidebar) continue;
@@ -758,7 +763,26 @@ export function handleNavigation(keyCode, event = null) {
 
   // Transition focus if candidate was found
   if (bestCandidate) {
-    const nextIndex = elements.indexOf(bestCandidate);
+    let finalTarget = bestCandidate;
+
+    // If entering the sidebar from page content, force focus to the active route's sidebar item
+    if (!isActiveSidebar && bestCandidate.classList.contains('sidebar-item')) {
+      let currentHash = window.location.hash.slice(1) || "dashboard";
+      currentHash = currentHash.split('?')[0];
+      if (currentHash.startsWith("live")) {
+        currentHash = "live";
+      }
+
+      const activeRouteSidebarEl = elements.find(el => 
+        el.classList.contains('sidebar-item') && 
+        el.getAttribute('data-hash') === currentHash
+      );
+      if (activeRouteSidebarEl) {
+        finalTarget = activeRouteSidebarEl;
+      }
+    }
+
+    const nextIndex = elements.indexOf(finalTarget);
     if (nextIndex !== -1) {
       focusIndex.set(nextIndex);
       updateScroll();

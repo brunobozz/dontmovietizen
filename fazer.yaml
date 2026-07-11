@@ -18,10 +18,6 @@
 
 #SEARCH
 - bugfix: nao aparecem as informações do cover na TV
-- lupa aumenta quando tem texto buscado no PC
-- ao dar espaço na busca sinalizar no texto
-- mover botao de espaço para baixo dos caracteres
-- mover botão X para ao lado do texto da busca
 - trazer alguma lista quando nao houver busca
 
 #SHELFS
