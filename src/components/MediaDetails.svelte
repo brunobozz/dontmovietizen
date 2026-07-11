@@ -129,11 +129,6 @@
 
     <!-- Right Side: Details Info -->
     <div class="info-container">
-      <!-- Category/Genre -->
-      <span class="info-category">
-        {item.category || "Sem Categoria"}
-      </span>
-
       <!-- Title -->
       <h2 class="info-title">
         {cleanName}
@@ -153,9 +148,9 @@
           </span>
         {/if}
 
-        <!-- Resolution Badge -->
-        <span class="badge badge-res">
-          FHD 1080P
+        <!-- Category/Genre -->
+        <span class="info-category">
+          {item.category || "Sem Categoria"}
         </span>
       </div>
 
@@ -280,7 +275,6 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 2px;
-    margin-bottom: 8px;
   }
 
   .info-title {
@@ -331,12 +325,6 @@
     color: #cbd5e1;
     border-color: #334155;
     background-color: rgba(30, 41, 59, 0.4);
-  }
-
-  .badge-res {
-    color: #34d399;
-    border-color: rgba(52, 211, 153, 0.2);
-    background-color: rgba(52, 211, 153, 0.1);
   }
 
   .info-description {
@@ -418,7 +406,6 @@
 
     .info-category {
       font-size: 18px;
-      margin-bottom: 12px;
     }
 
     .info-title {
