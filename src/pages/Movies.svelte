@@ -4,9 +4,9 @@
   import MediaDetails from "../components/MediaDetails.svelte";
   import PlayerMedia from "../components/PlayerMedia.svelte";
   import { mdiMovie } from "@mdi/js";
-  import { onMount } from "svelte";
+  import { onMount, tick } from "svelte";
   import { readFile, fileExists } from "../services/storage.js";
-  import { saveFocus, restoreFocus } from "../services/navigation.js";
+  import { saveFocus, restoreFocus, focusModal } from "../services/navigation.js";
 
   export let params = {};
 
@@ -101,13 +101,12 @@
   }
 
   function handlePlayMovie() {
-    showDetails = false;
+    saveFocus();
     showPlayer = true;
   }
 
   function handleClosePlayer() {
     showPlayer = false;
-    selectedMovie = null;
     setTimeout(() => {
       restoreFocus();
     }, 50);

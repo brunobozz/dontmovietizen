@@ -4,9 +4,9 @@
   import MediaDetails from "../components/MediaDetails.svelte";
   import PlayerMedia from "../components/PlayerMedia.svelte";
   import { mdiFilmstrip } from "@mdi/js";
-  import { onMount } from "svelte";
+  import { onMount, tick } from "svelte";
   import { readFile, fileExists } from "../services/storage.js";
-  import { saveFocus, restoreFocus } from "../services/navigation.js";
+  import { saveFocus, restoreFocus, focusModal } from "../services/navigation.js";
 
   export let params = {};
 
@@ -73,13 +73,12 @@
   }
 
   function handlePlaySeries() {
-    showDetails = false;
+    saveFocus();
     showPlayer = true;
   }
 
   function handleClosePlayer() {
     showPlayer = false;
-    selectedSeries = null;
     setTimeout(() => {
       restoreFocus();
     }, 50);

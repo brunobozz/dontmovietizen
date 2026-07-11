@@ -251,19 +251,15 @@
   }
 
   function handlePlay() {
-    // Hide details modal, open player
-    showModal = false;
+    saveFocus();
     showPlayer = true;
   }
 
-  async function handleClosePlayer() {
-    // Hide player, reopen details modal
+  function handleClosePlayer() {
     showPlayer = false;
-    showModal = true;
-
-    // Wait for the details modal to mount, then focus inside it
-    await tick();
-    focusModal();
+    setTimeout(() => {
+      restoreFocus();
+    }, 50);
   }
 
   // Reactively filter items based on the search query and active filter

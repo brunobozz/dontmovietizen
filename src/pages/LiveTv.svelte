@@ -2,10 +2,11 @@
   import Header from "../components/Header.svelte";
   import Shelf from "../components/Shelf.svelte";
   import PlayerStream from "../components/PlayerStream.svelte";
+  import MediaDetails from "../components/MediaDetails.svelte";
   import { mdiTelevision } from "@mdi/js";
-  import { onMount } from "svelte";
+  import { onMount, tick } from "svelte";
   import { readFile, fileExists } from "../services/storage.js";
-  import { saveFocus, restoreFocus } from "../services/navigation.js";
+  import { saveFocus, restoreFocus, focusModal } from "../services/navigation.js";
 
   export let params = {};
 
@@ -13,6 +14,7 @@
   let isLoading = true;
 
   let showPlayer = false;
+  let showDetails = false;
   let selectedChannel = null;
 
   // Lazy loading shelves - start with 5 rows
@@ -49,12 +51,24 @@
   function handleSelectItem(event) {
     saveFocus();
     selectedChannel = event.detail;
+    showDetails = true;
+  }
+
+  function handleCloseDetails() {
+    showDetails = false;
+    selectedChannel = null;
+    setTimeout(() => {
+      restoreFocus();
+    }, 50);
+  }
+
+  function handlePlayChannel() {
+    saveFocus();
     showPlayer = true;
   }
 
   function handleClosePlayer() {
     showPlayer = false;
-    selectedChannel = null;
     setTimeout(() => {
       restoreFocus();
     }, 50);
@@ -98,6 +112,14 @@
     </div>
   {/if}
 </div>
+
+{#if showDetails && selectedChannel}
+  <MediaDetails 
+    item={selectedChannel} 
+    onClose={handleCloseDetails} 
+    onPlay={handlePlayChannel}
+  />
+{/if}
 
 {#if showPlayer && selectedChannel}
   <PlayerStream item={selectedChannel} onClose={handleClosePlayer} />

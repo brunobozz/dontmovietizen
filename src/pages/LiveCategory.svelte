@@ -3,9 +3,10 @@
   import Header from "../components/Header.svelte";
   import ChannelsList from "../components/ChannelsList.svelte";
   import PlayerStream from "../components/PlayerStream.svelte";
+  import MediaDetails from "../components/MediaDetails.svelte";
   import { mdiTelevision, mdiArrowLeft } from "@mdi/js";
   import { readFile, fileExists } from "../services/storage.js";
-  import { focusable } from "../services/navigation.js";
+  import { focusable, focusModal } from "../services/navigation.js";
 
   export let params = {};
 
@@ -16,6 +17,7 @@
 
   let selectedChannel = null;
   let showPlayer = false;
+  let showDetails = false;
 
   async function loadChannels() {
     isLoading = true;
@@ -45,12 +47,24 @@
     selectedChannel = event.detail;
     // Standardize object for PlayerStream
     selectedChannel.type = "live";
+    showDetails = true;
+  }
+
+  function handleCloseDetails() {
+    showDetails = false;
+    selectedChannel = null;
+  }
+
+  function handlePlayChannel() {
+    saveFocus();
     showPlayer = true;
   }
 
   function handleClosePlayer() {
     showPlayer = false;
-    selectedChannel = null;
+    setTimeout(() => {
+      restoreFocus();
+    }, 50);
   }
 
   function handleGoBack() {
@@ -82,6 +96,14 @@
     </div>
   {/if}
 </div>
+
+{#if showDetails && selectedChannel}
+  <MediaDetails 
+    item={selectedChannel} 
+    onClose={handleCloseDetails} 
+    onPlay={handlePlayChannel}
+  />
+{/if}
 
 {#if showPlayer && selectedChannel}
   <PlayerStream item={selectedChannel} onClose={handleClosePlayer} />
