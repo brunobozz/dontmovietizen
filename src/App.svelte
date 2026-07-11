@@ -95,8 +95,37 @@
 
 <div class="flex flex-row w-screen h-screen overflow-hidden">
   <Sidebar />
-  <div class="flex-grow h-full overflow-hidden">
-    <!-- Renderiza dinamicamente a tela ativa com parâmetros de rota -->
-    <svelte:component this={routes[currentRoute]} params={routeParams} />
+  <div class="flex-grow h-full overflow-hidden relative">
+    <div class="page-container {currentRoute === 'search' ? '' : 'hidden'}" data-page-id="search">
+      <Search params={routeParams} />
+    </div>
+    <div class="page-container {currentRoute === 'dashboard' ? '' : 'hidden'}" data-page-id="dashboard">
+      <Dashboard params={routeParams} />
+    </div>
+    <div class="page-container {currentRoute === 'movies' ? '' : 'hidden'}" data-page-id="movies">
+      <Movies params={routeParams} />
+    </div>
+    <div class="page-container {currentRoute === 'tvshows' ? '' : 'hidden'}" data-page-id="tvshows">
+      <TvShows params={routeParams} />
+    </div>
+    <div class="page-container {currentRoute === 'live' ? '' : 'hidden'}" data-page-id="live">
+      <LiveTv params={routeParams} />
+    </div>
+    <div class="page-container {currentRoute === 'live-category' ? '' : 'hidden'}" data-page-id="live-category">
+      <LiveCategory params={routeParams} />
+    </div>
+    <div class="page-container {currentRoute === 'settings' ? '' : 'hidden'}" data-page-id="settings">
+      <Settings params={routeParams} />
+    </div>
   </div>
 </div>
+
+<style>
+  .page-container {
+    width: 100%;
+    height: 100%;
+  }
+  .page-container.hidden {
+    display: none !important;
+  }
+</style>

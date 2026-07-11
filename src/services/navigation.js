@@ -7,6 +7,7 @@ export const focusableElements = writable([]);
 let elements = [];
 let lastActivePageIndex = -1;
 let lastFocusedEpisodeEl = null;
+let lastPageFocusMap = {};
 
 // Register physical Tizen remote keys (like Back)
 export function registerTizenKeys() {
@@ -143,6 +144,13 @@ export function focusable(node) {
                         !node.closest('.player-container');
       if (isContent) {
         lastActivePageIndex = index;
+        const pageEl = node.closest('.page-container');
+        if (pageEl) {
+          const pageId = pageEl.getAttribute('data-page-id');
+          if (pageId) {
+            lastPageFocusMap[pageId] = node;
+          }
+        }
       }
 
       // Dispatch custom bubbled event for focus updates
@@ -577,14 +585,21 @@ export function handleNavigation(keyCode, event = null) {
 
   const isActiveSidebar = activeEl.classList.contains('sidebar-item');
 
-  // If navigating RIGHT from the sidebar, check if we have a saved page focus index to restore
-  if (direction === 'RIGHT' && isActiveSidebar && lastActivePageIndex >= 0 && lastActivePageIndex < elements.length) {
-    const targetEl = elements[lastActivePageIndex];
-    if (targetEl && !targetEl.classList.contains('sidebar-item') && !targetEl.closest('.modal-container')) {
-      focusIndex.set(lastActivePageIndex);
-      updateScroll();
-      if (event) event.preventDefault();
-      return;
+  // If navigating RIGHT from the sidebar, check if we have a saved page focus element to restore
+  if (direction === 'RIGHT' && isActiveSidebar) {
+    const activePageEl = document.querySelector('.page-container:not(.hidden)');
+    if (activePageEl) {
+      const pageId = activePageEl.getAttribute('data-page-id');
+      const savedEl = lastPageFocusMap[pageId];
+      if (savedEl && elements.includes(savedEl) && savedEl.offsetWidth > 0) {
+        const targetIdx = elements.indexOf(savedEl);
+        if (targetIdx !== -1) {
+          focusIndex.set(targetIdx);
+          updateScroll();
+          if (event) event.preventDefault();
+          return;
+        }
+      }
     }
   }
 
@@ -693,6 +708,11 @@ export function handleNavigation(keyCode, event = null) {
   for (let i = 0; i < elements.length; i++) {
     const candidate = elements[i];
     if (candidate === activeEl) continue;
+
+    // Skip hidden elements (e.g. elements on hidden pages)
+    if (candidate.offsetWidth === 0 && candidate.offsetHeight === 0) {
+      continue;
+    }
 
     // Focus trap for modal: if modal is open, candidate must be inside modal
     if (isModalOpen && !candidate.closest('.modal-container')) {

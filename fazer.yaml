@@ -1,6 +1,8 @@
 
 #PLAYER
 - Criar botão de aspect ratio (1:1, 4:3, 16:9)
+- Criar troca de canais quando no player stream
+- Criar metodo para recarregar o canal se ele trancar
 
 #MEDIA DETAILS
 - adicionar API para pegar dados da midia
@@ -19,7 +21,10 @@
 
 #SHELFS
 - criar item para abrir a categoria
-- 
+
+#SETTINGS
+- melhorar o input de codigo
+- e melhorar a tela toda
 
 #NOVO
 - Criar favoritos para cada midia
