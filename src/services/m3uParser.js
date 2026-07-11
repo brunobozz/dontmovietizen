@@ -49,6 +49,8 @@ function parseSeriesEpisode(name, groupTitle) {
 
   // Order of regexes matters: specific to general
   const s01e01Regex = /^(.*?)\s+[-]?\s*[sS](\d+)\s*[eE](\d+)(.*)$/i; // S01E01, S1E1, - S01E01
+  const s01s01NoSpaceRegex = /^(.*?)\s+[-]?\s*[sS](\d+)\s*[sS](\d+)(.*)$/i; // S05S03 typo format (no space)
+  const s01s01SpaceRegex = /^(.*?)\s+[-]?\s*[sS](\d+)\s+[sS](\d+)(.*)$/i; // S05 S03 typo format (with space)
   const s01SpaceE01Regex = /^(.*?)\s+[-]?\s*[sS](\d+)\s+(?:e|ep|episódio|episodio)?\s*(\d+)(.*)$/i; // S01 E01, S1 EP1
   const t01e01Regex = /^(.*?)\s+[-]?\s*[tT](\d+)\s*[eE](\d+)(.*)$/i; // T01E01, T1E1
   const t01SpaceE01Regex = /^(.*?)\s+[-]?\s*[tT](\d+)\s+(?:e|ep|episódio|episodio)?\s*(\d+)(.*)$/i; // T01 E01, T1 EP1
@@ -61,6 +63,16 @@ function parseSeriesEpisode(name, groupTitle) {
 
   let match;
   if ((match = name.match(s01e01Regex))) {
+    seriesName = match[1];
+    season = parseInt(match[2], 10);
+    episode = parseInt(match[3], 10);
+    episodeTitle = match[4];
+  } else if ((match = name.match(s01s01NoSpaceRegex))) {
+    seriesName = match[1];
+    season = parseInt(match[2], 10);
+    episode = parseInt(match[3], 10);
+    episodeTitle = match[4];
+  } else if ((match = name.match(s01s01SpaceRegex))) {
     seriesName = match[1];
     season = parseInt(match[2], 10);
     episode = parseInt(match[3], 10);
