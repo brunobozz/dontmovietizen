@@ -20,19 +20,98 @@
   let showModal = false;
   let showPlayer = false;
 
+  let defaultResults = [];
+
+  function parseAllMovies(rawData) {
+    const list = [];
+    if (!rawData) return list;
+    const lines = rawData.split("\n");
+    let currentMeta = null;
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (!line) continue;
+
+      if (line.startsWith("#EXTINF:")) {
+        const name = extractNameFromExtinf(line);
+        const logo = extractAttrFromExtinf(line, 'tvg-logo');
+        const tvgId = extractAttrFromExtinf(line, 'tvg-id');
+        const category = extractAttrFromExtinf(line, 'group-title') || 'Outros';
+        currentMeta = { name, logo, tvgId, category };
+      } else if (line.startsWith("http://") || line.startsWith("https://")) {
+        if (currentMeta) {
+          list.push({
+            url: line,
+            type: "movie",
+            name: currentMeta.name,
+            logo: currentMeta.logo,
+            tvgId: currentMeta.tvgId,
+            category: currentMeta.category
+          });
+          currentMeta = null;
+        }
+      }
+    }
+    return list;
+  }
+
+  function parseAllLive(liveObj) {
+    const list = [];
+    if (!liveObj) return list;
+    for (const category in liveObj) {
+      const channels = liveObj[category];
+      for (const ch of channels) {
+        list.push({
+          type: "live",
+          name: ch.name,
+          logo: ch.logo,
+          category: category,
+          url: ch.url
+        });
+      }
+    }
+    return list;
+  }
+
+  function parseAllSeries(seriesObj) {
+    const list = [];
+    if (!seriesObj) return list;
+    for (const seriesName in seriesObj) {
+      const series = seriesObj[seriesName];
+      list.push({
+        type: "series",
+        name: series.name,
+        logo: series.logo,
+        category: series.category,
+        seasons: series.seasons,
+        url: `series_${series.name}`
+      });
+    }
+    return list;
+  }
+
   onMount(async () => {
     try {
+      let allMovies = [];
+      let allLive = [];
+      let allSeries = [];
+
       if (await fileExists("movies.txt")) {
         moviesData = await readFile("movies.txt");
+        allMovies = parseAllMovies(moviesData);
       }
       if (await fileExists("live.json")) {
         const jsonText = await readFile("live.json");
         liveData = JSON.parse(jsonText);
+        allLive = parseAllLive(liveData);
       }
       if (await fileExists("series.json")) {
         const jsonText = await readFile("series.json");
         seriesData = JSON.parse(jsonText);
+        allSeries = parseAllSeries(seriesData);
       }
+
+      defaultResults = [...allMovies, ...allSeries, ...allLive];
     } catch (e) {
       console.error("Failed to load local files for search:", e);
     } finally {
@@ -190,7 +269,7 @@
   $: {
     const trimmedQuery = query.trim().toLowerCase();
     if (!trimmedQuery) {
-      results = [];
+      results = defaultResults;
     } else {
       const matchedMovies = searchRawData(moviesData, trimmedQuery, "movie", 30);
       const matchedLive = searchLive(liveData, trimmedQuery, 30);

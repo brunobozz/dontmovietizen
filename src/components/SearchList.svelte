@@ -43,36 +43,22 @@
 </script>
 
 <div class="search-list-container w-full h-full flex flex-col">
-  {#if query === ""}
-    <!-- Empty / Start Search Message -->
-    <div class="flex-grow flex flex-col items-center justify-center text-center p-8 select-none my-auto">
-      <div class="w-16 h-16 rounded-full bg-slate-900 flex items-center justify-center mb-4 border border-slate-800">
-        <svg viewBox="0 0 24 24" class="w-8 h-8 fill-current text-slate-500">
-          <path d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z"/>
-        </svg>
-      </div>
-      <h3 class="text-xl font-bold text-white mb-2">Search for movies, TV shows or channels</h3>
+  {#if visibleResults.length === 0}
+    <div class="flex-grow flex flex-col items-center justify-center text-center p-8 select-none my-auto animate-fadeIn">
+      <h3 class="text-xl font-bold text-white mb-2">
+        {query ? `No results found for "${query}"` : "No media files available"}
+      </h3>
       <p class="text-sm text-slate-500 font-light max-w-sm">
-        Use the on-screen keyboard to search by title or group categories in your M3U playlist.
+        {query ? "Double check the spelling or try searching for another term." : "Please import an M3U list in settings first."}
       </p>
     </div>
   {:else}
-    <!-- Results or No Matches -->
-    {#if visibleResults.length === 0}
-      <div class="flex-grow flex flex-col items-center justify-center text-center p-8 select-none my-auto animate-fadeIn">
-        <h3 class="text-xl font-bold text-white mb-2">No results found for "{query}"</h3>
-        <p class="text-sm text-slate-500 font-light max-w-sm">
-          Double check the spelling or try searching for another term.
-        </p>
-      </div>
-    {:else}
-      <!-- 4-Column Poster Grid -->
-      <div class="search-results-grid grid grid-cols-4 w-full pb-16 overflow-y-visible">
-        {#each visibleResults as item (item.url)}
-          <Cover {item} on:click={() => dispatch('selectItem', item)} />
-        {/each}
-      </div>
-    {/if}
+    <!-- 4-Column Poster Grid -->
+    <div class="search-results-grid grid grid-cols-4 w-full pb-16 overflow-y-visible">
+      {#each visibleResults as item, i (item.url + '_' + i)}
+        <Cover {item} on:click={() => dispatch('selectItem', item)} />
+      {/each}
+    </div>
   {/if}
 </div>
 

@@ -18,7 +18,7 @@
 
 #SEARCH
 - bugfix: nao aparecem as informações do cover na TV
-- trazer alguma lista quando nao houver busca
+- criar categoria de filtro (filmes, series, canais)
 
 #SHELFS
 - criar item para abrir a categoria
