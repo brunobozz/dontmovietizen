@@ -179,6 +179,7 @@
       alert("Lista sincronizada com sucesso!");
       syncCode = "";
       showSyncForm = false;
+      window.location.reload();
     } catch (e) {
       console.error(e);
       alert(`Erro ao sincronizar código:\n${e.message || "Erro de conexão"}`);
@@ -221,6 +222,7 @@
       );
       newUrl = "";
       showForm = false;
+      window.location.reload();
     } catch (e) {
       console.error(e);
       let errorMsg = e.message || "Erro desconhecido.";
@@ -281,6 +283,7 @@
         await loadFileStats();
 
         alert("Lista atualizada com sucesso por código!");
+        window.location.reload();
       } else {
         progressText = "Conectando ao servidor da lista...";
         const result = await parseM3uAndSave(list.url, (percentage) => {
@@ -292,6 +295,7 @@
         alert(
           `Lista atualizada com sucesso!\nEstruturados:\n- ${result.movies} Filmes\n- ${result.series} Séries (${result.episodes} Episódios)\n- ${result.live} Canais`
         );
+        window.location.reload();
       }
     } catch (e) {
       console.error(e);
