@@ -3,10 +3,15 @@
 - Criar botão de aspect ratio (1:1, 4:3, 16:9)
 - Criar troca de canais quando no player stream
 - Criar metodo para recarregar o canal se ele trancar
+- Salvar onde parou
+- Ao adiantar video mostrar THUMBNAIL
+
+#COVER
+- Spinner ou skeleton ao carregar imagens
+- Cover sem imagem definir formato padrao
 
 #MEDIA DETAILS
 - adicionar API para pegar dados da midia
-- corrigir layout de temporada e episodios
 
 #CHANNELS
 - agrupar o mesmo canal com varias qualidades (HD, FHD, 4K)
@@ -26,5 +31,13 @@
 - melhorar o input de codigo
 - e melhorar a tela toda
 
+#UPLOAD
+- cavaleiros do zodiaco agrupou 2 series diferentes
+
+#MENU
+- ajustar responsividade dos botões
+
 #NOVO
 - Criar favoritos para cada midia
+- passar o app todo para ingles com file de lenguage
+- melhorar os transitions e animaçoes
