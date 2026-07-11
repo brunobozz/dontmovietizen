@@ -92,7 +92,7 @@
     &:global(.focused) {
       border-color: #38bdf8 !important;
       transform: scale(1.05) !important;
-      box-shadow: 0 10px 25px rgba(14, 165, 233, 0.4) !important;
+      box-shadow: 0 0px 15px rgba(14, 165, 233, 0.4) !important;
       z-index: 20;
 
       .cover-overlay {
