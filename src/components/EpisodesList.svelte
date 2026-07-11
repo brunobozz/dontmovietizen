@@ -80,6 +80,10 @@
     height: 250px;
     margin-top: 15px;
     box-sizing: border-box;
+
+    @media (min-width: 1900px) {
+      height: 380px;
+    }
   }
 
   .seasons-column {
@@ -127,11 +131,22 @@
     text-align: left;
     box-sizing: border-box;
     margin-bottom: 8px;
+    flex-shrink: 0;
+
+    @media (min-width: 1900px) {
+      padding: 16px 22px;
+      margin-bottom: 12px;
+      border-radius: 14px;
+    }
 
     .season-name {
       font-weight: 750;
       font-size: 14px;
       color: #94a3b8;
+
+      @media (min-width: 1900px) {
+        font-size: 18px;
+      }
     }
 
     .episodes-badge {
@@ -142,6 +157,11 @@
       padding: 3px 8px;
       border-radius: 20px;
       border: 1px solid rgba(14, 165, 233, 0.2);
+
+      @media (min-width: 1900px) {
+        font-size: 14px;
+        padding: 4px 12px;
+      }
     }
 
     &.active {
@@ -179,6 +199,13 @@
     text-align: left;
     box-sizing: border-box;
     margin-bottom: 8px;
+    flex-shrink: 0;
+
+    @media (min-width: 1900px) {
+      padding: 14px 20px;
+      margin-bottom: 10px;
+      border-radius: 12px;
+    }
 
     .play-icon {
       width: 12px;
@@ -187,6 +214,12 @@
       color: #38bdf8;
       margin-right: 10px;
       flex-shrink: 0;
+
+      @media (min-width: 1900px) {
+        width: 16px;
+        height: 16px;
+        margin-right: 14px;
+      }
     }
 
     .ep-num {
@@ -195,6 +228,11 @@
       color: #f1f5f9;
       margin-right: 8px;
       flex-shrink: 0;
+
+      @media (min-width: 1900px) {
+        font-size: 18px;
+        margin-right: 12px;
+      }
     }
 
     .ep-title {
@@ -204,6 +242,10 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+
+      @media (min-width: 1900px) {
+        font-size: 16px;
+      }
     }
 
     &:global(.focused) {
