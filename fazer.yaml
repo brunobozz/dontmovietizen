@@ -7,9 +7,6 @@
 - Ao adiantar video mostrar THUMBNAIL
 - Ao voltar do player aberto nas rotas MOVIE SERIES o app volta direto para a lista sem passar pelo details.
 
-#COVER
-- Cover sem imagem definir formato padrao
-
 #MEDIA DETAILS
 - adicionar API para pegar dados da midia
 
@@ -17,7 +14,7 @@
 - agrupar o mesmo canal com varias qualidades (HD, FHD, 4K)
 
 #SEARCH
-- bugfix: nao aparecem as informações do cover na TV
+- bugfix: nao aparecem as informações do cover na TV (ver nas shelfs tbm)
 
 #SHELFS
 - criar item para abrir a categoria
