@@ -79,8 +79,15 @@
       showControls = true;
       await tick();
 
-      // Set focus to the play-pause control
-      focusElementByDataAttribute("data-player-control", "play-pause");
+      // If pressing LEFT (37) or RIGHT (39), focus timeline and seek immediately
+      if (key === 37 || key === 39) {
+        focusElementByDataAttribute("data-player-control", "timeline");
+        const seekAmount = key === 39 ? 10 : -10; // Seek 10s forward or backward
+        seek(seekAmount);
+      } else {
+        // Set focus to the play-pause control
+        focusElementByDataAttribute("data-player-control", "play-pause");
+      }
       resetControlsTimeout();
     } else {
       resetControlsTimeout();
