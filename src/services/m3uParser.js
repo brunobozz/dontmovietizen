@@ -11,24 +11,34 @@ function classifyType(url, category) {
   const lowercaseUrl = url.toLowerCase();
   const lowercaseCategory = (category || "").toLowerCase();
 
-  // If group-title contains series/séries or url contains /series/ -> series
-  if (lowercaseCategory.includes("série") || lowercaseCategory.includes("series") || lowercaseUrl.includes("/series/")) {
+  // 1. Identify VOD file formats (extensions)
+  const isVODFile = 
+    lowercaseUrl.endsWith(".mp4") || 
+    lowercaseUrl.endsWith(".mkv") || 
+    lowercaseUrl.endsWith(".avi") ||
+    lowercaseUrl.endsWith(".webm") ||
+    lowercaseUrl.endsWith(".m4v");
+
+  // 2. Identify VOD keywords in the URL path (since path segments are explicit)
+  const isVODPath = 
+    lowercaseUrl.includes("/movie/") || 
+    lowercaseUrl.includes("/series/");
+
+  // Rule: If it is neither a VOD file extension nor a VOD path, it is a live channel!
+  if (!isVODFile && !isVODPath) {
+    return "live";
+  }
+
+  // 3. Distinguish between VOD series and movies
+  if (
+    lowercaseCategory.includes("série") || 
+    lowercaseCategory.includes("series") || 
+    lowercaseUrl.includes("/series/")
+  ) {
     return "series";
   }
-  // If group-title contains filmes/movies/cinema or url contains /movie/ or ends with movie extensions -> movie
-  if (
-    lowercaseCategory.includes("filme") ||
-    lowercaseCategory.includes("movie") ||
-    lowercaseCategory.includes("cinema") ||
-    lowercaseUrl.includes("/movie/") ||
-    lowercaseUrl.endsWith(".mp4") ||
-    lowercaseUrl.endsWith(".mkv") ||
-    lowercaseUrl.endsWith(".avi")
-  ) {
-    return "movie";
-  }
-  // Otherwise -> live
-  return "live";
+
+  return "movie";
 }
 
 function parseSeriesEpisode(name, groupTitle) {
