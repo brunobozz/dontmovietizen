@@ -298,6 +298,19 @@ function getFirstVisibleItem(shelfContainer) {
   return bestItem;
 }
 
+// Helper to scroll an inactive element into view (e.g. active season tab)
+function scrollElementIntoView(el) {
+  if (!el) return;
+  try {
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  } catch (e) {
+    const parent = el.parentNode;
+    if (parent) {
+      parent.scrollTop = el.offsetTop - (parent.clientHeight / 2) + (el.clientHeight / 2);
+    }
+  }
+}
+
 // Global Keydown Router for Remote Control Navigation (uses Spatial Navigation)
 export function handleNavigation(keyCode, event = null) {
   if (elements.length === 0) return;
@@ -396,6 +409,121 @@ export function handleNavigation(keyCode, event = null) {
   else if (keyCode === 40) direction = 'DOWN';
 
   if (!direction) return;
+
+  const activeType = activeEl.getAttribute('data-type');
+
+  if (activeType === 'season-btn') {
+    const index = parseInt(activeEl.getAttribute('data-index'), 10);
+    const total = parseInt(activeEl.getAttribute('data-total'), 10);
+
+    if (direction === 'UP' && index === 0) {
+      if (event) event.preventDefault();
+      return;
+    }
+    if (direction === 'DOWN' && index === total - 1) {
+      if (event) event.preventDefault();
+      return;
+    }
+    if (direction === 'RIGHT') {
+      if (event) event.preventDefault();
+      const firstEp = elements.find(el => el.getAttribute('data-type') === 'episode-item' && parseInt(el.getAttribute('data-index'), 10) === 0);
+      if (firstEp) {
+        const targetIdx = elements.indexOf(firstEp);
+        if (targetIdx !== -1) {
+          focusIndex.set(targetIdx);
+          updateScroll();
+          return;
+        }
+      }
+    }
+  }
+
+  if (activeType === 'episode-item') {
+    const index = parseInt(activeEl.getAttribute('data-index'), 10);
+    const total = parseInt(activeEl.getAttribute('data-total'), 10);
+
+    if (direction === 'LEFT') {
+      if (event) event.preventDefault();
+      const activeSeasonBtn = elements.find(el => el.classList.contains('season-btn') && el.classList.contains('active'));
+      if (activeSeasonBtn) {
+        const targetIdx = elements.indexOf(activeSeasonBtn);
+        if (targetIdx !== -1) {
+          focusIndex.set(targetIdx);
+          updateScroll();
+          return;
+        }
+      }
+    }
+
+    if (direction === 'DOWN' && index === total - 1) {
+      if (event) event.preventDefault();
+
+      const activeSeasonBtn = elements.find(el => el.classList.contains('season-btn') && el.classList.contains('active'));
+      if (activeSeasonBtn) {
+        const seasonIdx = parseInt(activeSeasonBtn.getAttribute('data-index'), 10);
+        const seasonTotal = parseInt(activeSeasonBtn.getAttribute('data-total'), 10);
+        
+        if (seasonIdx < seasonTotal - 1) {
+          const nextSeasonBtn = elements.find(el => el.classList.contains('season-btn') && parseInt(el.getAttribute('data-index'), 10) === seasonIdx + 1);
+          if (nextSeasonBtn) {
+            nextSeasonBtn.click();
+            scrollElementIntoView(nextSeasonBtn);
+
+            setTimeout(() => {
+              const firstEp = elements.find(el => el.getAttribute('data-type') === 'episode-item' && parseInt(el.getAttribute('data-index'), 10) === 0);
+              if (firstEp) {
+                const targetIdx = elements.indexOf(firstEp);
+                if (targetIdx !== -1) {
+                  focusIndex.set(targetIdx);
+                  updateScroll();
+                }
+              }
+            }, 60);
+            return;
+          }
+        }
+      }
+      return; // Lock DOWN if no next season
+    }
+
+    if (direction === 'UP' && index === 0) {
+      if (event) event.preventDefault();
+
+      const activeSeasonBtn = elements.find(el => el.classList.contains('season-btn') && el.classList.contains('active'));
+      if (activeSeasonBtn) {
+        const seasonIdx = parseInt(activeSeasonBtn.getAttribute('data-index'), 10);
+        
+        if (seasonIdx > 0) {
+          const prevSeasonBtn = elements.find(el => el.classList.contains('season-btn') && parseInt(el.getAttribute('data-index'), 10) === seasonIdx - 1);
+          if (prevSeasonBtn) {
+            prevSeasonBtn.click();
+            scrollElementIntoView(prevSeasonBtn);
+
+            setTimeout(() => {
+              const epItems = elements.filter(el => el.getAttribute('data-type') === 'episode-item');
+              if (epItems.length > 0) {
+                const lastEp = epItems.reduce((max, curr) => {
+                  const idx = parseInt(curr.getAttribute('data-index'), 10);
+                  const maxIdx = parseInt(max.getAttribute('data-index'), 10);
+                  return idx > maxIdx ? curr : max;
+                }, epItems[0]);
+
+                if (lastEp) {
+                  const targetIdx = elements.indexOf(lastEp);
+                  if (targetIdx !== -1) {
+                    focusIndex.set(targetIdx);
+                    updateScroll();
+                  }
+                }
+              }
+            }, 60);
+            return;
+          }
+        }
+      }
+      return; // Lock UP if no previous season
+    }
+  }
 
   // Block navigation to the right if we are on the very last item of a Shelf
   if (direction === 'RIGHT' && activeEl.getAttribute('data-last') === 'true') {

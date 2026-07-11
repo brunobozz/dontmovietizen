@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import { focusable } from "../services/navigation.js";
   import { mdiMovie, mdiFilmstrip, mdiTelevision, mdiPlay, mdiArrowLeft } from "@mdi/js";
+  import EpisodesList from "./EpisodesList.svelte";
 
   export let item;
   export let onClose;
@@ -41,13 +42,7 @@
     activeSeason = seasonsList[0];
   }
 
-  function toggleSeason(seasonNum) {
-    if (activeSeason === seasonNum) {
-      activeSeason = null;
-    } else {
-      activeSeason = seasonNum;
-    }
-  }
+
 
   function playEpisode(ep) {
     // Inject the selected episode details into the item dynamically
@@ -172,55 +167,22 @@
       </p>
 
       {#if item.type === "series"}
-        <!-- Seasons Accordion List -->
-        <div class="seasons-accordion flex flex-col w-full overflow-y-auto pr-2 mt-2 select-none">
-          {#if isLoadingEpisodes}
-            <div style="padding: 40px 0; text-align: center; width: 100%;">
-              <span style="font-size: 14px; font-weight: 600; color: #94a3b8; display: block; animation: pulse 2s infinite;">Carregando episódios da série...</span>
-            </div>
-          {:else if seasonsList.length === 0}
-            <div style="padding: 40px 0; text-align: center; width: 100%;">
-              <span style="font-size: 14px; font-weight: 500; color: #64748b;">Nenhum episódio disponível para esta série.</span>
-            </div>
-          {:else}
-            {#each seasonsList as seasonNum}
-              <div class="season-section mb-3">
-                <!-- Season Header Button -->
-                <button
-                  use:focusable
-                  class="focusable season-header-btn flex justify-between items-center w-full px-5 py-4 bg-slate-900 border border-glass-border rounded-xl text-left"
-                  on:click={() => toggleSeason(seasonNum)}
-                >
-                  <span class="font-bold text-white text-base">
-                    {seasonNum === "Especiais" ? "Especiais / Perdidos" : `Temporada ${seasonNum}`}
-                  </span>
-                  <span class="text-xs text-sky-400 font-bold bg-sky-950/40 px-3 py-1 rounded-full border border-sky-900/30">
-                    {item.seasons[seasonNum].length} episódios
-                  </span>
-                </button>
-
-                <!-- Episodes List (visible if season is active/expanded) -->
-                {#if activeSeason === seasonNum}
-                  <div class="episodes-container flex flex-col w-full mt-3 p-3 border border-glass-border rounded-xl bg-slate-950/50">
-                    {#each item.seasons[seasonNum] as ep}
-                      <button
-                        use:focusable
-                        class="focusable episode-item flex justify-between items-center px-4 py-3 rounded-lg text-sm text-left mb-2 text-slate-300 w-full"
-                        on:click={() => playEpisode(ep)}
-                      >
-                        <div class="flex items-center">
-                          <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current text-sky-400 mr-3"><path d={mdiPlay} /></svg>
-                          <span class="font-semibold text-white mr-2">Ep. {ep.episode}</span>
-                          <span class="truncate max-w-[280px] text-slate-400 font-light">{ep.name}</span>
-                        </div>
-                      </button>
-                    {/each}
-                  </div>
-                {/if}
-              </div>
-            {/each}
-          {/if}
-        </div>
+        <!-- Seasons 50/50 generic list -->
+        {#if isLoadingEpisodes}
+          <div style="padding: 40px 0; text-align: center; width: 100%;">
+            <span style="font-size: 14px; font-weight: 600; color: #94a3b8; display: block; animation: pulse 2s infinite;">Carregando episódios da série...</span>
+          </div>
+        {:else if !item.seasons || Object.keys(item.seasons).length === 0}
+          <div style="padding: 40px 0; text-align: center; width: 100%;">
+            <span style="font-size: 14px; font-weight: 500; color: #64748b;">Nenhum episódio disponível para esta série.</span>
+          </div>
+        {:else}
+          <EpisodesList
+            seasons={item.seasons}
+            bind:activeSeason
+            playEpisode={playEpisode}
+          />
+        {/if}
       {:else}
         <!-- Action Buttons for Movies/Live TV -->
         <div class="info-actions">
@@ -383,7 +345,7 @@
     font-weight: 300;
     line-height: 1.6;
     max-width: 550px;
-    margin: 0 0 32px 0;
+    margin: 0 0 20px 0;
   }
 
   .info-actions {
@@ -478,7 +440,7 @@
     .info-description {
       font-size: 20px;
       max-width: 740px;
-      margin-bottom: 40px;
+      margin-bottom: 20px;
     }
 
     .btn-play, .btn-back {
