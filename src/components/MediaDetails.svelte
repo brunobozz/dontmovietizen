@@ -221,18 +221,6 @@
             {/each}
           {/if}
         </div>
-
-        <!-- Back Button for Series -->
-        <div class="info-actions mt-4">
-          <button
-            use:focusable
-            class="focusable btn-back"
-            on:click={onClose}
-          >
-            <svg viewBox="0 0 24 24" class="btn-icon"><path d={mdiArrowLeft} /></svg>
-            <span>Voltar</span>
-          </button>
-        </div>
       {:else}
         <!-- Action Buttons for Movies/Live TV -->
         <div class="info-actions">
@@ -244,16 +232,6 @@
           >
             <svg viewBox="0 0 24 24" class="btn-icon"><path d={mdiPlay} /></svg>
             <span>{item.type === 'live' ? 'Reproduzir Canal' : 'Reproduzir Filme'}</span>
-          </button>
-
-          <!-- Back Button -->
-          <button
-            use:focusable
-            class="focusable btn-back"
-            on:click={onClose}
-          >
-            <svg viewBox="0 0 24 24" class="btn-icon"><path d={mdiArrowLeft} /></svg>
-            <span>Voltar</span>
           </button>
         </div>
       {/if}

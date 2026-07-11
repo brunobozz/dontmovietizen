@@ -2,7 +2,7 @@
   import Header from "../components/Header.svelte";
   import Shelf from "../components/Shelf.svelte";
   import MediaDetails from "../components/MediaDetails.svelte";
-  import PlayerStream from "../components/PlayerStream.svelte";
+  import PlayerMedia from "../components/PlayerMedia.svelte";
   import { mdiMovie } from "@mdi/js";
   import { onMount } from "svelte";
   import { readFile, fileExists } from "../services/storage.js";
@@ -160,7 +160,7 @@
 {/if}
 
 {#if showPlayer && selectedMovie}
-  <PlayerStream item={selectedMovie} onClose={handleClosePlayer} />
+  <PlayerMedia item={selectedMovie} onClose={handleClosePlayer} />
 {/if}
 
 <style lang="scss">

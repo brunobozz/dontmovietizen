@@ -100,6 +100,25 @@ export function focusable(node) {
   });
 
   focusableElements.set(elements);
+
+  // Auto-focus modal or player element immediately upon mount if active focus is currently outside
+  const isModalOpen = document.querySelector('.modal-container') !== null;
+  const isPlayerOpen = document.querySelector('.player-container') !== null;
+  if (isModalOpen || isPlayerOpen) {
+    const activeIndex = get(focusIndex);
+    const activeEl = elements[activeIndex];
+    const outsideModal = isModalOpen && (!activeEl || !activeEl.closest('.modal-container'));
+    const outsidePlayer = isPlayerOpen && (!activeEl || !activeEl.closest('.player-container'));
+
+    if (outsideModal || outsidePlayer) {
+      const targetClass = isPlayerOpen ? '.player-container' : '.modal-container';
+      const firstInsideIndex = elements.findIndex(el => el.closest(targetClass));
+      if (firstInsideIndex !== -1) {
+        focusIndex.set(firstInsideIndex);
+        updateScroll();
+      }
+    }
+  }
   
   // Register Tizen back keys if first element mounted
   if (elements.length === 1) {
@@ -283,8 +302,25 @@ function getFirstVisibleItem(shelfContainer) {
 export function handleNavigation(keyCode, event = null) {
   if (elements.length === 0) return;
 
+  const isModalOpen = document.querySelector('.modal-container') !== null;
+  const isPlayerOpen = document.querySelector('.player-container') !== null;
+
   const currentIndex = get(focusIndex);
-  const activeEl = elements[currentIndex];
+  let activeEl = elements[currentIndex];
+
+  // Snap focus back into modal/player if activeEl is in the background
+  if (isModalOpen || isPlayerOpen) {
+    const targetClass = isPlayerOpen ? '.player-container' : '.modal-container';
+    if (!activeEl || !activeEl.closest(targetClass)) {
+      const firstInsideIndex = elements.findIndex(el => el.closest(targetClass));
+      if (firstInsideIndex !== -1) {
+        focusIndex.set(firstInsideIndex);
+        updateScroll();
+        if (event) event.preventDefault();
+        return;
+      }
+    }
+  }
 
   if (!activeEl) return;
 
@@ -481,9 +517,6 @@ export function handleNavigation(keyCode, event = null) {
   const activeRect = getUnscaledClientRect(activeEl);
   let bestCandidate = null;
   let minDistance = Infinity;
-
-  const isModalOpen = document.querySelector('.modal-container') !== null;
-  const isPlayerOpen = document.querySelector('.player-container') !== null;
 
   for (let i = 0; i < elements.length; i++) {
     const candidate = elements[i];
