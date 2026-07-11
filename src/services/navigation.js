@@ -405,6 +405,25 @@ export function handleNavigation(keyCode, event = null) {
       return;
     }
 
+    // Check if we are on the Category page
+    if (window.location.hash.startsWith('#category')) {
+      const urlParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
+      const type = urlParams.get('type') || 'movie';
+      
+      if (type === 'movie') {
+        window.location.hash = 'movies';
+      } else if (type === 'series') {
+        window.location.hash = 'tvshows';
+      } else {
+        window.location.hash = 'live';
+      }
+
+      setTimeout(() => {
+        restoreFocus();
+      }, 50);
+      return;
+    }
+
     const isActiveSidebar = activeEl.classList.contains('sidebar-item');
 
     // If focused on the content, pressing Back moves focus to the sidebar first!
@@ -590,9 +609,15 @@ export function handleNavigation(keyCode, event = null) {
     const activePageEl = document.querySelector('.page-container:not(.hidden)');
     if (activePageEl) {
       const pageId = activePageEl.getAttribute('data-page-id');
-      const savedEl = lastPageFocusMap[pageId];
-      if (savedEl && elements.includes(savedEl) && savedEl.offsetWidth > 0) {
-        const targetIdx = elements.indexOf(savedEl);
+      let targetEl = lastPageFocusMap[pageId];
+      
+      // Default to the first actual media cover (.cover-item) instead of the "Mostrar Todos" button
+      if (!targetEl) {
+        targetEl = activePageEl.querySelector('.cover-item');
+      }
+
+      if (targetEl && elements.includes(targetEl) && targetEl.offsetWidth > 0) {
+        const targetIdx = elements.indexOf(targetEl);
         if (targetIdx !== -1) {
           focusIndex.set(targetIdx);
           updateScroll();

@@ -1,6 +1,7 @@
 <script>
   import { createEventDispatcher } from "svelte";
   import Cover from "./Cover.svelte";
+  import { focusable, saveFocus } from "../services/navigation.js";
 
   export let title = "";
   export let items = [];
@@ -34,17 +35,26 @@
     const itemEl = event.target;
     const container = event.currentTarget;
 
-    // Find wrapper element of the focused target cover
-    const wrapperEl = itemEl.closest(".shelf-item-wrapper");
-    if (!wrapperEl) return;
+    // Delay slightly to ensure browser has computed stable layout offsets
+    setTimeout(() => {
+      // Find wrapper element of the focused target cover
+      const wrapperEl = itemEl.closest(".shelf-item-wrapper");
+      if (!wrapperEl) return;
 
-    // Calculate left boundary scroll offset (40px padding offset)
-    const targetScrollLeft = wrapperEl.offsetLeft - 40;
+      // Calculate left boundary scroll offset (40px padding offset)
+      const targetScrollLeft = wrapperEl.offsetLeft - 40;
 
-    container.scrollTo({
-      left: targetScrollLeft,
-      behavior: "smooth",
-    });
+      container.scrollTo({
+        left: targetScrollLeft,
+        behavior: "smooth",
+      });
+    }, 50);
+  }
+
+  function handleShowAll() {
+    saveFocus();
+    const type = items.length > 0 ? items[0].type : "movie";
+    window.location.hash = `category?type=${type}&name=${encodeURIComponent(title)}`;
   }
 </script>
 
@@ -63,11 +73,24 @@
     on:scroll={handleScroll}
     on:sn-focused={handleItemFocused}
   >
+    <!-- Card "Mostrar Todos" at First Position -->
+    <div class="shelf-item-wrapper flex-shrink-0 w-media">
+      <button
+        use:focusable
+        data-first="true"
+        class="focusable w-full aspect-[2/3] relative bg-gradient-to-br from-sky-950/70 to-slate-900 border border-slate-700/30 flex flex-col items-center justify-center p-4 text-center select-none show-all-btn"
+        on:click={handleShowAll}
+      >
+        <span class="text-xs uppercase font-extrabold text-sky-400 tracking-wider mb-2">Mostrar Todos</span>
+        <span class="text-sm font-bold text-white leading-tight line-clamp-3">{title}</span>
+      </button>
+    </div>
+
     {#each visibleItems as item, index (item.url)}
       <div class="shelf-item-wrapper flex-shrink-0 w-media">
         <Cover
           {item}
-          isFirst={index === 0}
+          isFirst={false}
           isLast={index === items.length - 1}
           on:click={() => handleSelectItem(item)}
         />
@@ -131,6 +154,19 @@
     }
     .w-media {
       width: 180px;
+    }
+  }
+  .show-all-btn {
+    outline: none;
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    
+    &:global(.focused) {
+      border-color: #38bdf8 !important;
+      transform: scale(1.05) !important;
+      box-shadow: 0 0px 15px rgba(14, 165, 233, 0.4) !important;
+      z-index: 20;
     }
   }
 </style>

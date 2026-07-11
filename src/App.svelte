@@ -8,6 +8,7 @@
   import LiveCategory from "./pages/LiveCategory.svelte";
   import Search from "./pages/Search.svelte";
   import Settings from "./pages/Settings.svelte";
+  import Category from "./pages/Category.svelte";
   import { handleNavigation, focusElementByDataAttribute } from "./services/navigation.js";
   import { fileExists, deleteFile } from "./services/storage.js";
 
@@ -19,6 +20,7 @@
     tvshows: TvShows,
     live: LiveTv,
     "live-category": LiveCategory,
+    category: Category,
     settings: Settings,
   };
 
@@ -116,6 +118,9 @@
     </div>
     <div class="page-container {currentRoute === 'settings' ? '' : 'hidden'}" data-page-id="settings">
       <Settings params={routeParams} />
+    </div>
+    <div class="page-container {currentRoute === 'category' ? '' : 'hidden'}" data-page-id="category">
+      <Category params={routeParams} />
     </div>
   </div>
 </div>
