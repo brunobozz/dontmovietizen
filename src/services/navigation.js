@@ -6,6 +6,7 @@ export const focusableElements = writable([]);
 
 let elements = [];
 let lastActivePageIndex = -1;
+let lastFocusedEpisodeEl = null;
 
 // Register physical Tizen remote keys (like Back)
 export function registerTizenKeys() {
@@ -132,6 +133,10 @@ export function focusable(node) {
     if (els[index] === node) {
       node.classList.add('focused');
       
+      if (node.getAttribute('data-type') === 'episode-item') {
+        lastFocusedEpisodeEl = node;
+      }
+
       // Save last active content element index (ignore sidebar, modals, players)
       const isContent = !node.classList.contains('sidebar-item') && 
                         !node.closest('.modal-container') && 
@@ -345,6 +350,31 @@ export function handleNavigation(keyCode, event = null) {
 
   // Handle Enter / Click
   if (keyCode === 13) {
+    const activeType = activeEl.getAttribute('data-type');
+    if (activeType === 'season-btn') {
+      activeEl.click();
+
+      if (lastFocusedEpisodeEl && elements.includes(lastFocusedEpisodeEl)) {
+        const targetIdx = elements.indexOf(lastFocusedEpisodeEl);
+        if (targetIdx !== -1) {
+          focusIndex.set(targetIdx);
+          updateScroll();
+          return;
+        }
+      }
+
+      const firstEp = elements.find(el => el.getAttribute('data-type') === 'episode-item' && parseInt(el.getAttribute('data-index'), 10) === 0);
+      if (firstEp) {
+        const targetIdx = elements.indexOf(firstEp);
+        if (targetIdx !== -1) {
+          focusIndex.set(targetIdx);
+          updateScroll();
+          return;
+        }
+      }
+      return;
+    }
+
     activeEl.click();
     return;
   }
@@ -424,8 +454,22 @@ export function handleNavigation(keyCode, event = null) {
       if (event) event.preventDefault();
       return;
     }
+
+    if (direction === 'UP' || direction === 'DOWN') {
+      lastFocusedEpisodeEl = null;
+    }
     if (direction === 'RIGHT') {
       if (event) event.preventDefault();
+
+      if (lastFocusedEpisodeEl && elements.includes(lastFocusedEpisodeEl)) {
+        const targetIdx = elements.indexOf(lastFocusedEpisodeEl);
+        if (targetIdx !== -1) {
+          focusIndex.set(targetIdx);
+          updateScroll();
+          return;
+        }
+      }
+
       const firstEp = elements.find(el => el.getAttribute('data-type') === 'episode-item' && parseInt(el.getAttribute('data-index'), 10) === 0);
       if (firstEp) {
         const targetIdx = elements.indexOf(firstEp);
