@@ -12,6 +12,7 @@
   import { mdiMovie, mdiFilmstrip, mdiTelevision, mdiArrowLeft } from "@mdi/js";
   import { readFile, fileExists } from "../services/storage.js";
   import { focusable, focusModal, saveFocus, restoreFocus, focusIndex, focusableElements, updateScroll } from "../services/navigation.js";
+  import { favoritesStore } from "../services/favorites.js";
 
   export let params = {};
 
@@ -170,7 +171,27 @@
 
   $: {
     if (type && categoryName) {
-      loadData();
+      if (categoryName === "Favoritos") {
+        items = $favoritesStore.filter(item => item.type === type);
+        isLoading = false;
+        
+        // Trigger autofocus on first render
+        tick().then(() => {
+          setTimeout(() => {
+            const firstCover = document.querySelector(".page-container:not(.hidden)[data-page-id='category'] .cover-item");
+            if (firstCover) {
+              const els = get(focusableElements);
+              const targetIndex = els.indexOf(firstCover);
+              if (targetIndex !== -1) {
+                focusIndex.set(targetIndex);
+                updateScroll();
+              }
+            }
+          }, 60);
+        });
+      } else {
+        loadData();
+      }
     }
   }
 

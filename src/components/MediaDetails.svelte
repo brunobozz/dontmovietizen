@@ -1,9 +1,10 @@
 <script>
-  import { onMount } from "svelte";
-  import { focusable } from "../services/navigation.js";
-  import { mdiMovie, mdiFilmstrip, mdiTelevision, mdiPlay, mdiArrowLeft } from "@mdi/js";
+  import { onMount, onDestroy } from "svelte";
+  import { focusable, focusModal } from "../services/navigation.js";
+  import { mdiMovie, mdiFilmstrip, mdiTelevision, mdiPlay, mdiArrowLeft, mdiStar, mdiStarOutline } from "@mdi/js";
   import EpisodesList from "./EpisodesList.svelte";
   import SkeletonEpisodes from "./SkeletonEpisodes.svelte";
+  import { favoritesStore, addFavorite, removeFavorite, isFavorited } from "../services/favorites.js";
 
   export let item;
   export let onClose;
@@ -29,6 +30,18 @@
   }
 
   $: typeInfo = getMediaTypeInfo(item.type);
+
+  // Favorite State and Toggle
+  let isItemFav = false;
+  $: isItemFav = isFavorited(item.url, $favoritesStore);
+
+  function toggleFavorite() {
+    if (isItemFav) {
+      removeFavorite(item.url);
+    } else {
+      addFavorite(item);
+    }
+  }
 
   // Series Season & Episode State Grouping
   let activeSeason = null;
@@ -60,6 +73,7 @@
   }
 
   let isLoadingEpisodes = false;
+
 
   function getActiveSyncCode() {
     try {
@@ -99,12 +113,19 @@
         console.error("Error loading on-demand series episodes:", err);
       } finally {
         isLoadingEpisodes = false;
+        setTimeout(() => {
+          focusModal();
+        }, 80);
       }
+    } else if (item.type === "series") {
+      setTimeout(() => {
+        focusModal();
+      }, 80);
     }
+  });
 
-    return () => {
-      window.removeEventListener("close-modal", handleCloseEvent);
-    };
+  onDestroy(() => {
+    window.removeEventListener("close-modal", handleCloseEvent);
   });
 </script>
 
@@ -163,6 +184,24 @@
       </p>
 
       {#if item.type === "series"}
+        <!-- Favorite button above Seasons (loaded dynamically once loading completes) -->
+        {#if !isLoadingEpisodes && item.seasons && Object.keys(item.seasons).length > 0}
+          <div class="flex items-center mb-4">
+            <button
+              use:focusable
+              class="focusable btn-fav-star mr-3 flex items-center justify-center p-2 rounded-xl transition-all duration-300"
+              on:click={toggleFavorite}
+            >
+              <svg viewBox="0 0 24 24" class="w-7 h-7 {isItemFav ? 'fill-yellow-500 text-yellow-500' : 'fill-current text-slate-400'}">
+                <path d={isItemFav ? mdiStar : mdiStarOutline} />
+              </svg>
+            </button>
+            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">
+              {isItemFav ? 'Remover dos Favoritos' : 'Adicionar aos Favoritos'}
+            </span>
+          </div>
+        {/if}
+
         <!-- Seasons 50/50 generic list -->
         {#if isLoadingEpisodes}
           <SkeletonEpisodes />
@@ -179,7 +218,18 @@
         {/if}
       {:else}
         <!-- Action Buttons for Movies/Live TV -->
-        <div class="info-actions">
+        <div class="info-actions flex items-center">
+          <!-- Favorite Button (Star) -->
+          <button
+            use:focusable
+            class="focusable btn-fav-star mr-4 flex items-center justify-center p-2 rounded-xl transition-all duration-300"
+            on:click={toggleFavorite}
+          >
+            <svg viewBox="0 0 24 24" class="w-8 h-8 {isItemFav ? 'fill-yellow-500 text-yellow-500' : 'fill-current text-slate-400'}">
+              <path d={isItemFav ? mdiStar : mdiStarOutline} />
+            </svg>
+          </button>
+
           <!-- Play Button -->
           <button
             use:focusable
@@ -352,6 +402,24 @@
     cursor: pointer;
     outline: none;
     margin-right: 16px;
+  }
+
+  .btn-fav-star {
+    background-color: transparent;
+    border: 2px solid transparent;
+    outline: none;
+    cursor: pointer;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    &:global(.focused) {
+      background-color: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: scale(1.1);
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+    }
   }
 
   .btn-icon {

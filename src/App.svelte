@@ -9,7 +9,7 @@
   import Search from "./pages/Search.svelte";
   import Settings from "./pages/Settings.svelte";
   import Category from "./pages/Category.svelte";
-  import { handleNavigation, focusElementByDataAttribute } from "./services/navigation.js";
+  import { handleNavigation, focusElementByDataAttribute, clearFocusStack } from "./services/navigation.js";
   import { fileExists, deleteFile } from "./services/storage.js";
 
   // Mapeamento de rotas/telas do app
@@ -98,30 +98,39 @@
 <div class="flex flex-row w-screen h-screen overflow-hidden">
   <Sidebar />
   <div class="flex-grow h-full overflow-hidden relative">
-    <div class="page-container {currentRoute === 'search' ? '' : 'hidden'}" data-page-id="search">
-      <Search params={routeParams} />
-    </div>
-    <div class="page-container {currentRoute === 'dashboard' ? '' : 'hidden'}" data-page-id="dashboard">
-      <Dashboard params={routeParams} />
-    </div>
-    <div class="page-container {currentRoute === 'movies' ? '' : 'hidden'}" data-page-id="movies">
-      <Movies params={routeParams} />
-    </div>
-    <div class="page-container {currentRoute === 'tvshows' ? '' : 'hidden'}" data-page-id="tvshows">
-      <TvShows params={routeParams} />
-    </div>
-    <div class="page-container {currentRoute === 'live' ? '' : 'hidden'}" data-page-id="live">
-      <LiveTv params={routeParams} />
-    </div>
-    <div class="page-container {currentRoute === 'live-category' ? '' : 'hidden'}" data-page-id="live-category">
-      <LiveCategory params={routeParams} />
-    </div>
-    <div class="page-container {currentRoute === 'settings' ? '' : 'hidden'}" data-page-id="settings">
-      <Settings params={routeParams} />
-    </div>
-    <div class="page-container {currentRoute === 'category' ? '' : 'hidden'}" data-page-id="category">
-      <Category params={routeParams} />
-    </div>
+    {#if currentRoute === 'search'}
+      <div class="page-container" data-page-id="search">
+        <Search params={routeParams} />
+      </div>
+    {:else if currentRoute === 'dashboard'}
+      <div class="page-container" data-page-id="dashboard">
+        <Dashboard params={routeParams} />
+      </div>
+    {:else if currentRoute === 'movies'}
+      <div class="page-container" data-page-id="movies">
+        <Movies params={routeParams} />
+      </div>
+    {:else if currentRoute === 'tvshows'}
+      <div class="page-container" data-page-id="tvshows">
+        <TvShows params={routeParams} />
+      </div>
+    {:else if currentRoute === 'live'}
+      <div class="page-container" data-page-id="live">
+        <LiveTv params={routeParams} />
+      </div>
+    {:else if currentRoute === 'live-category'}
+      <div class="page-container" data-page-id="live-category">
+        <LiveCategory params={routeParams} />
+      </div>
+    {:else if currentRoute === 'settings'}
+      <div class="page-container" data-page-id="settings">
+        <Settings params={routeParams} />
+      </div>
+    {:else if currentRoute === 'category'}
+      <div class="page-container" data-page-id="category">
+        <Category params={routeParams} />
+      </div>
+    {/if}
   </div>
 </div>
 

@@ -31,6 +31,7 @@
 
 <div
   use:focusable
+  data-url={item.url}
   data-first={isFirst ? "true" : undefined}
   data-last={isLast ? "true" : undefined}
   class="cover-item focusable w-full aspect-[2/3] relative overflow-hidden"

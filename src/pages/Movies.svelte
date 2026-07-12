@@ -7,6 +7,7 @@
   import { onMount, tick } from "svelte";
   import { readFile, fileExists } from "../services/storage.js";
   import { saveFocus, restoreFocus, focusModal } from "../services/navigation.js";
+  import { favoritesStore } from "../services/favorites.js";
 
   export let params = {};
 
@@ -16,6 +17,8 @@
   let showDetails = false;
   let showPlayer = false;
   let selectedMovie = null;
+
+  $: favMovies = $favoritesStore.filter(item => item.type === "movie");
 
   // Lazy loading shelves - start with 5 rows
   let visibleShelvesCount = 5;
@@ -141,6 +144,11 @@
     </div>
   {:else}
     <div class="shelves-list" on:sn-focused={handleShelfFocused}>
+      <!-- First Shelf: Favoritos -->
+      <div data-shelf-index="-1">
+        <Shelf title="Favoritos" items={favMovies} on:selectItem={handleSelectItem} />
+      </div>
+
       {#each visibleCategories as cat, index (cat.name)}
         <div data-shelf-index={index}>
           <Shelf title={cat.name} items={cat.items} on:selectItem={handleSelectItem} />

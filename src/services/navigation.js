@@ -8,6 +8,7 @@ let elements = [];
 let lastActivePageIndex = -1;
 let lastFocusedEpisodeEl = null;
 let lastPageFocusMap = {};
+let lastCloseTime = 0;
 
 // Register physical Tizen remote keys (like Back)
 export function registerTizenKeys() {
@@ -90,6 +91,10 @@ export function updateScroll() {
 
 // Svelte custom directive (action) to auto-register focusable elements
 export function focusable(node) {
+  // Save currently focused element to preserve focus index across list updates
+  const activeIndex = get(focusIndex);
+  const currentActiveEl = elements[activeIndex];
+
   // Add node to tracking array
   elements.push(node);
 
@@ -103,24 +108,37 @@ export function focusable(node) {
 
   focusableElements.set(elements);
 
-  // Auto-focus modal or player element immediately upon mount if active focus is currently outside
-  const isModalOpen = document.querySelector('.modal-container') !== null;
-  const isPlayerOpen = document.querySelector('.player-container') !== null;
-  if (isModalOpen || isPlayerOpen) {
-    const activeIndex = get(focusIndex);
-    const activeEl = elements[activeIndex];
-    const outsideModal = isModalOpen && (!activeEl || !activeEl.closest('.modal-container'));
-    const outsidePlayer = isPlayerOpen && (!activeEl || !activeEl.closest('.player-container'));
-
-    if (outsideModal || outsidePlayer) {
-      const targetClass = isPlayerOpen ? '.player-container' : '.modal-container';
-      const firstInsideIndex = elements.findIndex(el => el.closest(targetClass));
-      if (firstInsideIndex !== -1) {
-        focusIndex.set(firstInsideIndex);
-        updateScroll();
-      }
+  // Keep focus locked to the same element if its index shifted in the sorted array
+  if (currentActiveEl && elements.includes(currentActiveEl)) {
+    const newIdx = elements.indexOf(currentActiveEl);
+    if (newIdx !== -1 && newIdx !== activeIndex) {
+      focusIndex.set(newIdx);
     }
   }
+
+  // Auto-focus modal or player element upon mount if active focus is currently outside
+  setTimeout(() => {
+    const isModalOpen = document.querySelector('.modal-container') !== null;
+    const isPlayerOpen = document.querySelector('.player-container') !== null;
+    if (isModalOpen || isPlayerOpen) {
+      const activeIndex = get(focusIndex);
+      const activeEl = elements[activeIndex];
+      const outsideModal = isModalOpen && (!activeEl || !activeEl.closest('.modal-container'));
+      const outsidePlayer = isPlayerOpen && (!activeEl || !activeEl.closest('.player-container'));
+
+      if (outsideModal || outsidePlayer) {
+        if (isPlayerOpen) {
+          const firstInsideIndex = elements.findIndex(el => el.closest('.player-container'));
+          if (firstInsideIndex !== -1) {
+            focusIndex.set(firstInsideIndex);
+            updateScroll();
+          }
+        } else {
+          focusModal();
+        }
+      }
+    }
+  }, 50);
   
   // Register Tizen back keys if first element mounted
   if (elements.length === 1) {
@@ -176,21 +194,33 @@ export function focusable(node) {
       unsubscribeIndex();
       unsubscribeElements();
 
+      // Save currently focused element before modification
+      const activeIndex = get(focusIndex);
+      const currentActiveEl = elements[activeIndex];
+
       // Remove node from tracking array
       elements = elements.filter(el => el !== node);
       focusableElements.set(elements);
 
-      // Reset focus index if elements are empty (page transition) or index is out of bounds
-      if (elements.length === 0) {
-        focusIndex.set(0);
-        lastActivePageIndex = -1;
+      // Keep focus locked to the same element if its index shifted after removal
+      if (currentActiveEl && elements.includes(currentActiveEl)) {
+        const newIdx = elements.indexOf(currentActiveEl);
+        if (newIdx !== -1) {
+          focusIndex.set(newIdx);
+        }
       } else {
-        focusIndex.update(idx => {
-          if (idx >= elements.length) {
-            return Math.max(0, elements.length - 1);
-          }
-          return idx;
-        });
+        // Reset focus index if elements are empty (page transition) or index is out of bounds
+        if (elements.length === 0) {
+          focusIndex.set(0);
+          lastActivePageIndex = -1;
+        } else {
+          focusIndex.update(idx => {
+            if (idx >= elements.length) {
+              return Math.max(0, elements.length - 1);
+            }
+            return idx;
+          });
+        }
       }
     }
   };
@@ -391,6 +421,12 @@ export function handleNavigation(keyCode, event = null) {
   if (keyCode === 10009 || keyCode === 27) {
     if (event) event.preventDefault();
     
+    const now = Date.now();
+    if (now - lastCloseTime < 300) {
+      return;
+    }
+    lastCloseTime = now;
+
     // Check if player is open in DOM
     const isPlayerOpen = document.querySelector('.player-container') !== null;
     if (isPlayerOpen) {
@@ -473,10 +509,6 @@ export function handleNavigation(keyCode, event = null) {
     const index = parseInt(activeEl.getAttribute('data-index'), 10);
     const total = parseInt(activeEl.getAttribute('data-total'), 10);
 
-    if (direction === 'UP' && index === 0) {
-      if (event) event.preventDefault();
-      return;
-    }
     if (direction === 'DOWN' && index === total - 1) {
       if (event) event.preventDefault();
       return;
@@ -589,6 +621,17 @@ export function handleNavigation(keyCode, event = null) {
               }
             }, 60);
             return;
+          }
+        } else {
+          // If on the first season (index 0), focus the favorite button above
+          const favBtn = document.querySelector('.modal-container .btn-fav-star');
+          if (favBtn) {
+            const targetIdx = elements.indexOf(favBtn);
+            if (targetIdx !== -1) {
+              focusIndex.set(targetIdx);
+              updateScroll();
+              return;
+            }
           }
         }
       }
@@ -823,20 +866,100 @@ export function focusElementByDataAttribute(name, val) {
   }
 }
 
-let savedFocusIndex = 0;
+let savedFocusStack = [];
 
-export function saveFocus() {
-  savedFocusIndex = get(focusIndex);
+function serializeElement(el) {
+  if (!el) return null;
+  if (el.getAttribute('data-url')) {
+    return { type: 'selector', value: `[data-url="${el.getAttribute('data-url')}"]` };
+  }
+  if (el.getAttribute('data-type') === 'show-all-btn') {
+    return { type: 'selector', value: `[data-type="show-all-btn"][data-category="${el.getAttribute('data-category')}"]` };
+  }
+  if (el.getAttribute('data-hash')) {
+    return { type: 'selector', value: `[data-hash="${el.getAttribute('data-hash')}"]` };
+  }
+  if (el.getAttribute('data-type') === 'season-btn') {
+    return { type: 'selector', value: `[data-type="season-btn"][data-index="${el.getAttribute('data-index')}"]` };
+  }
+  if (el.getAttribute('data-type') === 'episode-item') {
+    return { type: 'selector', value: `[data-type="episode-item"][data-index="${el.getAttribute('data-index')}"]` };
+  }
+  if (el.classList.contains('btn-play')) {
+    return { type: 'selector', value: '.modal-container .btn-play' };
+  }
+  if (el.classList.contains('btn-fav-star')) {
+    return { type: 'selector', value: '.modal-container .btn-fav-star' };
+  }
+  
+  const activeIndex = elements.indexOf(el);
+  return { type: 'index', value: activeIndex };
 }
 
-export function restoreFocus() {
-  focusIndex.set(savedFocusIndex);
-  updateScroll();
+export function saveFocus() {
+  const currentIndex = get(focusIndex);
+  const activeEl = elements[currentIndex];
+  console.log("[saveFocus] activeIndex:", currentIndex, "activeEl:", activeEl);
+  if (activeEl) {
+    const serialized = serializeElement(activeEl);
+    if (serialized) {
+      savedFocusStack.push(serialized);
+      console.log("[saveFocus] Pushed to stack:", serialized, "Stack length:", savedFocusStack.length);
+    }
+  }
+}
+
+export function restoreFocus(retryCount = 0) {
+  console.log("[restoreFocus] Call - retryCount:", retryCount, "Stack length:", savedFocusStack.length);
+  console.trace("[restoreFocus] Trace");
+  if (savedFocusStack.length > 0) {
+    const targetObj = savedFocusStack[savedFocusStack.length - 1]; // Peek at top item
+    if (!targetObj) {
+      savedFocusStack.pop();
+      return;
+    }
+    console.log("[restoreFocus] Peeking targetObj:", targetObj);
+
+    let targetEl = null;
+    if (targetObj.type === 'selector') {
+      targetEl = document.querySelector(targetObj.value);
+    } else if (targetObj.type === 'index') {
+      targetEl = elements[targetObj.value];
+    }
+    console.log("[restoreFocus] targetEl found in DOM:", targetEl);
+
+    if (targetEl && elements.includes(targetEl)) {
+      savedFocusStack.pop(); // Pop it since we successfully resolved it
+      const targetIdx = elements.indexOf(targetEl);
+      console.log("[restoreFocus] Target is in elements. Index:", targetIdx);
+      if (targetIdx !== -1) {
+        focusIndex.set(targetIdx);
+        updateScroll();
+      }
+    } else if (retryCount < 10) {
+      console.log("[restoreFocus] Target not in elements yet. Retrying in 30ms...");
+      // If target element is not yet registered in elements list, retry in 30ms
+      setTimeout(() => {
+        restoreFocus(retryCount + 1);
+      }, 30);
+    } else {
+      console.log("[restoreFocus] Max retries reached. Target not found. Popping targetObj.");
+      // Pop as fallback if completely failed to register
+      savedFocusStack.pop();
+    }
+  }
+}
+
+export function clearFocusStack() {
+  savedFocusStack = [];
 }
 
 export function focusModal() {
-  // Find the first focusable element inside the modal container
-  const modalEl = document.querySelector('.modal-container .focusable') || document.querySelector('.modal-container [data-focusable="true"]');
+  // Prioritize focusing the Play button or Season button, falling back to first focusable
+  const modalEl = document.querySelector('.modal-container .btn-play') || 
+                  document.querySelector('.modal-container [data-type="season-btn"]') ||
+                  document.querySelector('.modal-container .focusable') || 
+                  document.querySelector('.modal-container [data-focusable="true"]');
   if (modalEl) {
     const idx = elements.indexOf(modalEl);
     if (idx !== -1) {

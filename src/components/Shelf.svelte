@@ -67,36 +67,42 @@
     <span class="text-xs font-light text-slate-500">{items.length} itens</span>
   </div>
 
-  <!-- Horizontal Scroll List -->
-  <div
-    class="scroll-container"
-    on:scroll={handleScroll}
-    on:sn-focused={handleItemFocused}
-  >
-    <!-- Card "Mostrar Todos" at First Position -->
-    <div class="shelf-item-wrapper flex-shrink-0 w-media">
-      <button
-        use:focusable
-        data-first="true"
-        class="focusable w-full aspect-[2/3] relative bg-gradient-to-br from-sky-950/70 to-slate-900 border border-slate-700/30 flex flex-col items-center justify-center p-4 text-center select-none show-all-btn"
-        on:click={handleShowAll}
-      >
-        <span class="text-xs uppercase font-extrabold text-sky-400 tracking-wider mb-2">Mostrar Todos</span>
-        <span class="text-sm font-bold text-white leading-tight line-clamp-3">{title}</span>
-      </button>
+  {#if title === "Favoritos" && items.length === 0}
+    <div class="empty-favorites-box flex items-center justify-start pl-10 text-slate-500 text-sm font-light select-none">
+      Nenhum favorito adicionado ainda. Clique na estrela dentro dos detalhes para favoritar.
     </div>
-
-    {#each visibleItems as item, index (item.url)}
+  {:else}
+    <!-- Horizontal Scroll List -->
+    <div
+      class="scroll-container"
+      on:scroll={handleScroll}
+      on:sn-focused={handleItemFocused}
+    >
+      <!-- Card "Mostrar Todos" at First Position -->
       <div class="shelf-item-wrapper flex-shrink-0 w-media">
-        <Cover
-          {item}
-          isFirst={false}
-          isLast={index === items.length - 1}
-          on:click={() => handleSelectItem(item)}
-        />
+        <button
+          use:focusable
+          data-first="true"
+          class="focusable w-full aspect-[2/3] relative bg-gradient-to-br from-sky-950/70 to-slate-900 border border-slate-700/30 flex flex-col items-center justify-center p-4 text-center select-none show-all-btn"
+          on:click={handleShowAll}
+        >
+          <span class="text-xs uppercase font-extrabold text-sky-400 tracking-wider mb-2">Mostrar Todos</span>
+          <span class="text-sm font-bold text-white leading-tight line-clamp-3">{title}</span>
+        </button>
       </div>
-    {/each}
-  </div>
+
+      {#each visibleItems as item, index (item.url)}
+        <div class="shelf-item-wrapper flex-shrink-0 w-media">
+          <Cover
+            {item}
+            isFirst={false}
+            isLast={index === items.length - 1}
+            on:click={() => handleSelectItem(item)}
+          />
+        </div>
+      {/each}
+    </div>
+  {/if}
 </div>
 
 <style lang="scss">
@@ -167,6 +173,19 @@
       transform: scale(1.05) !important;
       box-shadow: 0 0px 15px rgba(14, 165, 233, 0.4) !important;
       z-index: 20;
+    }
+  }
+  .empty-favorites-box {
+    height: 120px;
+    box-sizing: border-box;
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 300;
+    
+    @media (min-width: 1900px) {
+      height: 150px;
+      font-size: 16px;
+      padding-left: 60px !important;
     }
   }
 </style>
